@@ -8,7 +8,7 @@
     <h3>Filesystem</h3>
   </p>
   <p>
-    async/await-ready filesystem methods for Node.js
+    Async filesystem methods for Node.js
   </p>
   <br/>
   <p>
