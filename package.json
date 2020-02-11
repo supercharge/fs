@@ -9,8 +9,7 @@
   "dependencies": {
     "fs-extra": "~8.1.0",
     "lockfile": "~1.0.4",
-    "recursive-readdir": "~2.2.2",
-    "tempy": "~0.3.0"
+    "recursive-readdir": "~2.2.2"
   },
   "devDependencies": {
     "@hapi/code": "~7.0.0",
