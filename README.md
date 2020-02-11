@@ -49,13 +49,16 @@ Find all the [details for `@supercharge/filesystem` in the extensive Supercharge
 ## Usage
 Using `@supercharge/filesystem` is pretty straightforward. Install and import the package in your project and use the methods to interact with the filesystem.
 
-For example, you may copy or move a file from `src` to `dest` like this:
+For example, you may copy or move a file from `src` to `dest` or retrieve a file’s size:
 
 ```js
 const Fs = require('@supercharge/filesystem')
 
 await Fs.copy(src, dest)
 await Fs.move(src, dest)
+
+const size = await Fs.size(file)
+// 3758 bytes
 ```
 
 Have a look at the [docs](https://superchargejs.com/docs/filesystem) for this package to find more details on all supported methods.
