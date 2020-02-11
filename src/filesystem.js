@@ -1,11 +1,12 @@
 'use strict'
 
+const Os = require('os')
 const Path = require('path')
 const Fs = require('fs-extra')
-const Tempy = require('tempy')
 const Lockfile = require('lockfile')
 const { promisify: Promisify } = require('util')
 const ReadRecursive = require('recursive-readdir')
+const { random: randomString } = require('./helper')
 
 const lock = Promisify(Lockfile.lock)
 const unlock = Promisify(Lockfile.unlock)
@@ -260,9 +261,13 @@ class Filesystem {
    * Like `mkdir -p`.
    *
    * @param {String} dir - directory path
+   *
+   * @returns {String} dir - directory path
    */
   static async ensureDir (dir) {
-    return Fs.ensureDir(dir)
+    await Fs.ensureDir(dir)
+
+    return dir
   }
 
   /**
@@ -332,7 +337,10 @@ class Filesystem {
    * @param {Object} options
    */
   static async lock (file, options = {}) {
-    return lock(await this.prepareLockFile(file), options)
+    return lock(
+      await this.prepareLockFile(file),
+      options
+    )
   }
 
   /**
@@ -341,7 +349,9 @@ class Filesystem {
    * @param {String} file
    */
   static async unlock (file) {
-    return unlock(await this.prepareLockFile(file))
+    return unlock(
+      await this.prepareLockFile(file)
+    )
   }
 
   /**
@@ -353,7 +363,10 @@ class Filesystem {
    * @returns {Boolean}
    */
   static async isLocked (file, options = {}) {
-    return isLocked(await this.prepareLockFile(file), options)
+    return isLocked(
+      await this.prepareLockFile(file),
+      options
+    )
   }
 
   /**
@@ -365,25 +378,58 @@ class Filesystem {
    * @returns {String}
    */
   static async prepareLockFile (file = '') {
-    return file.endsWith('.lock') ? file : `${file}.lock`
+    return file.endsWith('.lock')
+      ? file
+      : `${file}.lock`
   }
 
   /**
-   * Create a random temporary file path
-   * you can write to.
+   * Create a random temporary file path you can write to.
+   * The operating system will clean up the temporary
+   * files automatically, probably after some days.
    *
    * @param {Object} options
+   *
+   * @returns {String}
    */
   static async tempFile ({ extension = '', name } = {}) {
-    return Tempy.file({ extension, name })
+    if (extension && name) {
+      throw new Error('The `name` and `extension` options are mutually exclusive.')
+    }
+
+    if (name) {
+      return Path.resolve(
+        await this.tempDir(), name
+      )
+    }
+
+    extension = extension.replace(/^\./, '')
+
+    return `${await this.tempDir()}.${extension}`
   }
 
   /**
-   * Create a temporary directory path.
-   * The directory is created for you.
+   * Create a temporary directory path which will
+   * be cleaned up by the operating system.
+   *
+   * @returns {String}
    */
   static async tempDir () {
-    return Tempy.directory()
+    return this.ensureDir(
+      await this.tempPath()
+    )
+  }
+
+  /**
+   * Generates a random, temporary path on the filesystem.
+   *
+   * @returns {String}
+   */
+  static async tempPath () {
+    return Path.resolve(
+      await Fs.realpath(Os.tmpdir()),
+      randomString()
+    )
   }
 
   /**
@@ -392,6 +438,8 @@ class Filesystem {
    * at `/path/to/index.html`.
    *
    * @param {String} file
+   *
+   * @returns {String}
    */
   static async extension (file) {
     return Path.extname(file)
