@@ -30,7 +30,9 @@
 ---
 
 ## Introduction
-A short introduction for `@supercharge/filesystem`.
+The `@supercharge/filesystem` package provides async filesystem methods. It’s a wrapper around Node.js’ `fs` package exposing only async methods. It provides a handful of additional methods, like `copy`, `move`, `ensureFile`, `size`, and `tempFile` (there are actually a lot more).
+
+**Please notice:** this package is not providing all of the native `fs` methods from Node.js. It provides dozens of most used methods, fully async.
 
 
 ## Installation
@@ -45,17 +47,17 @@ Find all the [details for `@supercharge/filesystem` in the extensive Supercharge
 
 
 ## Usage
-Using `@supercharge/filesystem` is pretty straightforward.
+Using `@supercharge/filesystem` is pretty straightforward. Install and import the package in your project and use the methods to interact with the filesystem.
 
-For example, you may …:
+For example, you may copy a file from `src` to `dest` like this:
 
 ```js
-const Pkg = require('@supercharge/filesystem')
+const Fs = require('@supercharge/filesystem')
 
-await Pkg.method()
-
-// Result goes here
+await Fs.copy(src, dest)
 ```
+
+Have a look at the [docs](https://superchargejs.com/docs/filesystem) for this package to find more details on all supported methods.
 
 
 ## Contributing
