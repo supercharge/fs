@@ -1,6 +1,24 @@
 # Changelog
 
 
+## [2.0.0](https://github.com/supercharge/filesystem/compare/v1.0.0...v2.0.0) - 2020-05-xx
+
+### Added
+- `isNotLocked(file, options)` method to determine whether a given `file` is not locked
+
+### Updated
+- move code to TypeScript to automatically generate Typings
+
+### Breaking Changes
+We noticed issues using the [`lockfile`](https://github.com/npm/lockfile) package to lock and unlock files. Lock would even be aquired for non-existent files.
+
+This package now uses the [`proper-lockfile`](https://github.com/moxystudio/node-proper-lockfile) package to aquire, check, and release file locks.
+
+**Breaking Changes**
+- require Node.js v10 or later
+- removed internally used `prepareLockFile` method because it is not needed anymore
+
+
 ## 1.0.0 - 2020-02-12
 
 ### Added

@@ -312,21 +312,32 @@ describe('Filesystem', () => {
     ).to.be.false()
 
     await Filesystem.lock(file)
-
-    expect(
-      await Filesystem.isLocked(file)
-    ).to.be.true()
-  })
-
-  it('unlock', async () => {
-    const file = await ensureTempFile()
-
     await Filesystem.lock(file)
+
     expect(
       await Filesystem.isLocked(file)
     ).to.be.true()
 
     await Filesystem.unlock(file)
+
+    expect(
+      await Filesystem.isLocked(file)
+    ).to.be.false()
+  })
+
+  it('unlock', async () => {
+    const file = await ensureTempFile()
+
+    await expect(Filesystem.unlock(file)).to.not.reject()
+
+    await Filesystem.lock(file)
+
+    expect(
+      await Filesystem.isLocked(file)
+    ).to.be.true()
+
+    await Filesystem.unlock(file)
+
     expect(
       await Filesystem.isLocked(file)
     ).to.be.false()

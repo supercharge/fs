@@ -2,11 +2,11 @@
 
 import Os from 'os'
 import Path from 'path'
-import Lockfile, { LockOptions, UnlockOptions, CheckOptions } from 'proper-lockfile'
 import ReadRecursive from 'recursive-readdir'
 import { tap, upon } from '@supercharge/goodies'
 import Fs, { Stats, SymlinkType } from 'fs-extra'
 import { random as randomString, isDate } from './helper'
+import Lockfile, { LockOptions, UnlockOptions, CheckOptions } from 'proper-lockfile'
 
 export class Filesystem {
   /**
@@ -334,23 +334,30 @@ export class Filesystem {
 
   /**
    * Acquire a file lock on the specified `file` path with the given `options`.
+   * If the `file` is already locked, this method won't throw an error and
+   * instead just move on.
    *
    * @param {String} file
    * @param {Object} options
    *
    * @returns {Function} release function
    */
-  static async lock (file: string, options?: LockOptions): Promise<Function> {
-    return Lockfile.lock(file, options)
+  static async lock (file: string, options?: LockOptions): Promise<void> {
+    if (await this.isNotLocked(file, options)) {
+      await Lockfile.lock(file, options)
+    }
   }
 
   /**
-   * Close and unlink the lockfile.
+   * Release an existent lock for the `file` and given `options`. If the `file`
+   * isn't locked, this method won't throw an error and just move on.
    *
    * @param {String} file
    */
   static async unlock (file: string, options?: UnlockOptions): Promise<void> {
-    return Lockfile.unlock(file, options)
+    if (await this.isLocked(file, options)) {
+      await Lockfile.unlock(file, options)
+    }
   }
 
   /**
@@ -363,6 +370,18 @@ export class Filesystem {
    */
   static async isLocked (file: string, options: CheckOptions = {}): Promise<boolean> {
     return Lockfile.check(file, options)
+  }
+
+  /**
+   * Check if the `file` is not locked and not stale.
+   *
+   * @param {String} file
+   * @param {Object} options
+   *
+   * @returns {Boolean}
+   */
+  static async isNotLocked (file: string, options: CheckOptions = {}): Promise<boolean> {
+    return !await this.isLocked(file, options)
   }
 
   /**
