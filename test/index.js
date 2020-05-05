@@ -4,8 +4,9 @@ const Fs = require('fs')
 const Path = require('path')
 const Lab = require('@hapi/lab')
 const Crypto = require('crypto')
-const Filesystem = require('../src')
+const Filesystem = require('..')
 const { expect } = require('@hapi/code')
+const { tap } = require('@supercharge/goodies')
 
 const { describe, it, before, after } = (exports.lab = Lab.script())
 
@@ -20,10 +21,9 @@ async function tempFile (file = `${randomName()}.txt`) {
 }
 
 async function ensureTempFile (filename = `${randomName()}.txt`) {
-  const file = await tempFile(filename)
-  await Filesystem.ensureFile(file)
-
-  return file
+  return tap(tempFile(filename), async file => {
+    await Filesystem.ensureFile(file)
+  })
 }
 
 describe('Filesystem', () => {
@@ -85,10 +85,10 @@ describe('Filesystem', () => {
 
   it('canAccess', async () => {
     const file = await ensureTempFile()
-    const access = await Filesystem.canAccess(file, Fs.constants.W_OK)
-    const accessSync = await Fs.accessSync(file, Fs.constants.W_OK)
 
-    expect(access).to.equal(accessSync)
+    expect(
+      await Filesystem.canAccess(file, Fs.constants.W_OK)
+    ).to.be.true()
   })
 
   it('pathExists', async () => {
@@ -264,24 +264,24 @@ describe('Filesystem', () => {
     const file1 = await ensureTempFile()
     await Filesystem.chmod(file1, '400') // read-only
 
-    await expect(Filesystem.canAccess(file1, Fs.constants.W_OK)).to.reject()
+    expect(await Filesystem.canAccess(file1, Fs.constants.W_OK)).to.be.false()
 
     const file2 = await ensureTempFile()
     await Filesystem.chmod(file2, '600') // read-write
 
-    await expect(Filesystem.canAccess(file2, Fs.constants.W_OK)).to.not.reject()
+    expect(await Filesystem.canAccess(file2, Fs.constants.W_OK)).to.be.true()
   })
 
   it('chmodAsInteger', async () => {
     const file1 = await ensureTempFile()
     await Filesystem.chmod(file1, 400) // read-only
 
-    await expect(Filesystem.canAccess(file1, Fs.constants.W_OK)).to.reject()
+    expect(await Filesystem.canAccess(file1, Fs.constants.W_OK)).to.be.false()
 
     const file2 = await ensureTempFile()
     await Filesystem.chmod(file2, 600) // read-write
 
-    await expect(Filesystem.canAccess(file2, Fs.constants.W_OK)).to.not.reject()
+    expect(await Filesystem.canAccess(file2, Fs.constants.W_OK)).to.be.true()
   })
 
   it('ensureLink', async () => {
@@ -306,11 +306,13 @@ describe('Filesystem', () => {
 
   it('lock', async () => {
     const file = await ensureTempFile()
+
     expect(
       await Filesystem.isLocked(file)
     ).to.be.false()
 
     await Filesystem.lock(file)
+
     expect(
       await Filesystem.isLocked(file)
     ).to.be.true()
@@ -318,6 +320,7 @@ describe('Filesystem', () => {
 
   it('unlock', async () => {
     const file = await ensureTempFile()
+
     await Filesystem.lock(file)
     expect(
       await Filesystem.isLocked(file)
@@ -327,16 +330,6 @@ describe('Filesystem', () => {
     expect(
       await Filesystem.isLocked(file)
     ).to.be.false()
-  })
-
-  it('prepareLockFile', async () => {
-    const withlock = await Filesystem.prepareLockFile('file.lock')
-    expect(withlock.includes('.lock')).to.be.true()
-
-    expect(await Filesystem.prepareLockFile()).to.equal('.lock')
-
-    const withoutlock = await Filesystem.prepareLockFile('file')
-    expect(withoutlock.includes('.lock')).to.be.true()
   })
 
   it('tempFile', async () => {

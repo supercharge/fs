@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "target": "es2018",
+    "module": "commonjs",
+    "lib": [
+      "es2018"
+    ],
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "removeComments": false,
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "strictNullChecks": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "strict": true
+  },
+  "include": [
+    "./**/*"
+  ],
+  "exclude": [
+    "./node_modules",
+    "./dist",
+    "./test"
+  ]
+}

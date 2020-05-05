@@ -1,18 +1,14 @@
 'use strict'
 
-const Os = require('os')
-const Path = require('path')
-const Fs = require('fs-extra')
-const Lockfile = require('lockfile')
-const { promisify: Promisify } = require('util')
-const ReadRecursive = require('recursive-readdir')
-const { random: randomString } = require('./helper')
+import Os from 'os'
+import Path from 'path'
+import Lockfile, { LockOptions, UnlockOptions, CheckOptions } from 'proper-lockfile'
+import ReadRecursive from 'recursive-readdir'
+import { tap, upon } from '@supercharge/goodies'
+import Fs, { Stats, SymlinkType } from 'fs-extra'
+import { random as randomString, isDate } from './helper'
 
-const lock = Promisify(Lockfile.lock)
-const unlock = Promisify(Lockfile.unlock)
-const isLocked = Promisify(Lockfile.check)
-
-class Filesystem {
+export class Filesystem {
   /**
    * Retrieve information about the given file. Use `access`
    * to check whether the `file` exists instead of `stat`.
@@ -21,7 +17,7 @@ class Filesystem {
    *
    * @returns {Stats}
    */
-  static async stat (file) {
+  static async stat (file: string): Promise<Stats> {
     return Fs.stat(file)
   }
 
@@ -32,10 +28,10 @@ class Filesystem {
    *
    * @returns {Integer}
    */
-  static async size (path) {
-    const { size } = await this.stat(path)
-
-    return size
+  static async size (path: string): Promise<number> {
+    return upon(this.stat(path), (stat: Stats) => {
+      return stat.size
+    })
   }
 
   /**
@@ -45,10 +41,10 @@ class Filesystem {
    *
    * @returns {Date}
    */
-  static async lastModified (file) {
-    const { mtime } = await this.stat(file)
-
-    return mtime
+  static async lastModified (file: string): Promise<Date> {
+    return upon(this.stat(file), (stat: Stats) => {
+      return stat.mtime
+    })
   }
 
   /**
@@ -58,10 +54,10 @@ class Filesystem {
    *
    * @returns {Date}
    */
-  static async lastAccessed (file) {
-    const { atime } = await this.stat(file)
-
-    return atime
+  static async lastAccessed (file: string): Promise<Date> {
+    return upon(this.stat(file), (stat: Stats) => {
+      return stat.atime
+    })
   }
 
   /**
@@ -70,21 +66,21 @@ class Filesystem {
    * accessed and last modified properties.
    *
    * @param {String} path
-   * @param {Number} atime
-   * @param {Number} mtime
+   * @param {Number} lastAccessed
+   * @param {Number} lastModified
    *
    * @throws
    */
-  static async updateTimestamps (path, atime, mtime) {
-    if (!(atime instanceof Date)) {
-      throw new Error(`Updating the last accessed timestamp for ${path} requires an instance of "Date".`)
+  static async updateTimestamps (path: string, lastAccessed: Date, lastModified: Date): Promise<void> {
+    if (!isDate(lastAccessed)) {
+      throw new Error(`Updating the last accessed timestamp for ${path} requires an instance of "Date". Received ${typeof lastAccessed}`)
     }
 
-    if (!(mtime instanceof Date)) {
-      throw new Error(`Updating the last modified timestamp for ${path} requires an instance of "Date".`)
+    if (!isDate(lastModified)) {
+      throw new Error(`Updating the last modified timestamp for ${path} requires an instance of "Date". Received ${typeof lastAccessed}`)
     }
 
-    return Fs.utimes(path, atime, mtime)
+    return Fs.utimes(path, lastAccessed, lastModified)
   }
 
   /**
@@ -96,10 +92,17 @@ class Filesystem {
    * @param {Integer} mode - defaults to `fs.constants.F_OK`
    *
    * @returns {Boolean}
+   *
    * @throws
    */
-  static async canAccess (path, mode) {
-    return Fs.access(path, mode)
+  static async canAccess (path: string, mode: number = Fs.constants.F_OK): Promise<boolean> {
+    try {
+      await Fs.access(path, mode)
+
+      return true
+    } catch (error) {
+      return false
+    }
   }
 
   /**
@@ -109,7 +112,7 @@ class Filesystem {
    *
    * @returns {Boolean}
    */
-  static async pathExists (path) {
+  static async pathExists (path: string): Promise<boolean> {
     return Fs.pathExists(path)
   }
 
@@ -121,7 +124,7 @@ class Filesystem {
    *
    * @returns {Boolean}
    */
-  static async exists (path) {
+  static async exists (path: string): Promise<boolean> {
     return this.pathExists(path)
   }
 
@@ -132,10 +135,8 @@ class Filesystem {
    *
    * @returns {Boolean}
    */
-  static async notExists (path) {
-    const exists = await this.exists(path)
-
-    return !exists
+  static async notExists (path: string): Promise<boolean> {
+    return !await this.exists(path)
   }
 
   /**
@@ -145,7 +146,7 @@ class Filesystem {
    *
    * @param {String} file
    */
-  static async ensureFile (file) {
+  static async ensureFile (file: string): Promise<void> {
     return Fs.ensureFile(file)
   }
 
@@ -159,7 +160,7 @@ class Filesystem {
    *
    * @returns {String}
    */
-  static async readFile (file, encoding = 'utf8') {
+  static async readFile (file: string, encoding: string = 'utf8'): Promise<string> {
     return Fs.readFile(file, encoding)
   }
 
@@ -169,12 +170,11 @@ class Filesystem {
    * directory excluding `.` and `..`.
    *
    * @param {String} path
-   * @param {String} encoding
    *
    * @returns {Array}
    */
-  static async files (path, encoding) {
-    return Fs.readdir(path, encoding)
+  static async files (path: string): Promise<string[]> {
+    return Fs.readdir(path)
   }
 
   /**
@@ -187,22 +187,24 @@ class Filesystem {
    *
    * @returns {Array}
    */
-  static async allFiles (path, options = {}) {
+  static async allFiles (path: string, options: any = {}): Promise<string[]> {
     const { ignore } = options
 
-    return ReadRecursive(path, ignore ? [].concat(ignore) : null)
+    return ReadRecursive(
+      path,
+      ignore ? [].concat(ignore) : undefined
+    )
   }
 
   /**
-   * Write file to a given location if parent
-   * directory/directories does not exists
-   * they will be created.
+   * Write the given `content` to the file` and create
+   * any parent directories if not existent.
    *
    * @param  {String} path
    * @param  {String} content
    * @param  {Object} options
    */
-  static async writeFile (file, content, options = 'utf8') {
+  static async writeFile (file: string, content: string, options: string|object = 'utf8'): Promise<void> {
     return Fs.outputFile(file, content, options)
   }
 
@@ -212,7 +214,7 @@ class Filesystem {
    *
    * @param {String} path
    */
-  static async remove (path) {
+  static async remove (path: string): Promise<void> {
     return Fs.remove(path)
   }
 
@@ -221,7 +223,7 @@ class Filesystem {
    *
    * @param {String} file
    */
-  static async removeFile (file) {
+  static async removeFile (file: string): Promise<void> {
     return Fs.remove(file)
   }
 
@@ -238,7 +240,7 @@ class Filesystem {
    * @param {String} dest - destination path
    * @param {Object} options
    */
-  static async copy (src, dest, options) {
+  static async copy (src: string, dest: string, options: object): Promise<void> {
     return Fs.copy(src, dest, options)
   }
 
@@ -251,7 +253,7 @@ class Filesystem {
    * @param {String} dest - destination path
    * @param {Object} options
    */
-  static async move (src, dest, options = {}) {
+  static async move (src: string, dest: string, options: object = {}): Promise<void> {
     return Fs.move(src, dest, options)
   }
 
@@ -264,10 +266,10 @@ class Filesystem {
    *
    * @returns {String} dir - directory path
    */
-  static async ensureDir (dir) {
-    await Fs.ensureDir(dir)
-
-    return dir
+  static async ensureDir (dir: string): Promise<string> {
+    return tap(dir, async () => {
+      await Fs.ensureDir(dir)
+    })
   }
 
   /**
@@ -277,7 +279,7 @@ class Filesystem {
    *
    * @param {String} dir - directory path
    */
-  static async removeDir (dir) {
+  static async removeDir (dir: string): Promise<void> {
     return Fs.remove(dir)
   }
 
@@ -289,7 +291,7 @@ class Filesystem {
    *
    * @param {String} dir
    */
-  static async emptyDir (dir) {
+  static async emptyDir (dir: string): Promise<void> {
     return Fs.emptyDir(dir)
   }
 
@@ -301,7 +303,7 @@ class Filesystem {
    * @param {String} file
    * @param {String|Integer} mode
    */
-  static async chmod (file, mode) {
+  static async chmod (file: string, mode: string): Promise<void> {
     return Fs.chmod(file, parseInt(mode, 8))
   }
 
@@ -313,7 +315,7 @@ class Filesystem {
    * @param {String} src
    * @param {String} dest
    */
-  static async ensureLink (src, dest) {
+  static async ensureLink (src: string, dest: string): Promise<void> {
     return Fs.ensureLink(src, dest)
   }
 
@@ -326,21 +328,20 @@ class Filesystem {
    * @param {String} dest
    * @param {String} type
    */
-  static async ensureSymlink (src, dest, type = 'file') {
+  static async ensureSymlink (src: string, dest: string, type: SymlinkType = 'file'): Promise<void> {
     return Fs.ensureSymlink(src, dest, type)
   }
 
   /**
-   * Acquire a file lock on the specified `file` path.
+   * Acquire a file lock on the specified `file` path with the given `options`.
    *
    * @param {String} file
    * @param {Object} options
+   *
+   * @returns {Function} release function
    */
-  static async lock (file, options = {}) {
-    return lock(
-      await this.prepareLockFile(file),
-      options
-    )
+  static async lock (file: string, options?: LockOptions): Promise<Function> {
+    return Lockfile.lock(file, options)
   }
 
   /**
@@ -348,39 +349,20 @@ class Filesystem {
    *
    * @param {String} file
    */
-  static async unlock (file) {
-    return unlock(
-      await this.prepareLockFile(file)
-    )
+  static async unlock (file: string, options?: UnlockOptions): Promise<void> {
+    return Lockfile.unlock(file, options)
   }
 
   /**
-   * Check if the lockfile is locked and not stale.
+   * Check if the `file` is locked and not stale.
    *
    * @param {String} file
    * @param {Object} options
    *
    * @returns {Boolean}
    */
-  static async isLocked (file, options = {}) {
-    return isLocked(
-      await this.prepareLockFile(file),
-      options
-    )
-  }
-
-  /**
-   * Append the `.lock` suffix to the file name
-   * if not existent.
-   *
-   * @param {String} file
-   *
-   * @returns {String}
-   */
-  static async prepareLockFile (file = '') {
-    return file.endsWith('.lock')
-      ? file
-      : `${file}.lock`
+  static async isLocked (file: string, options: CheckOptions = {}): Promise<boolean> {
+    return Lockfile.check(file, options)
   }
 
   /**
@@ -392,20 +374,16 @@ class Filesystem {
    *
    * @returns {String}
    */
-  static async tempFile ({ extension = '', name } = {}) {
+  static async tempFile ({ extension = '', name = '' } = {}): Promise<string> {
     if (extension && name) {
       throw new Error('The `name` and `extension` options are mutually exclusive.')
     }
 
     if (name) {
-      return Path.resolve(
-        await this.tempDir(), name
-      )
+      return Path.resolve(await this.tempDir(), name)
     }
 
-    extension = extension.replace(/^\./, '')
-
-    return `${await this.tempDir()}.${extension}`
+    return `${await this.tempDir()}.${extension.replace(/^\./, '')}`
   }
 
   /**
@@ -414,7 +392,7 @@ class Filesystem {
    *
    * @returns {String}
    */
-  static async tempDir () {
+  static async tempDir (): Promise<string> {
     return this.ensureDir(
       await this.tempPath()
     )
@@ -425,10 +403,9 @@ class Filesystem {
    *
    * @returns {String}
    */
-  static async tempPath () {
+  static async tempPath (): Promise<string> {
     return Path.resolve(
-      await Fs.realpath(Os.tmpdir()),
-      randomString()
+      await Fs.realpath(Os.tmpdir()), randomString()
     )
   }
 
@@ -441,7 +418,7 @@ class Filesystem {
    *
    * @returns {String}
    */
-  static async extension (file) {
+  static async extension (file: string): Promise<string> {
     return Path.extname(file)
   }
 
@@ -454,7 +431,7 @@ class Filesystem {
    *
    * @returns {String}
    */
-  static async basename (path, extension) {
+  static async basename (path: string, extension: string): Promise<string> {
     return Path.basename(path, extension)
   }
 
@@ -465,7 +442,7 @@ class Filesystem {
    *
    * @returns {String}
    */
-  static async filename (file) {
+  static async filename (file: string): Promise<string> {
     return Path.parse(file).name
   }
 
@@ -478,7 +455,7 @@ class Filesystem {
    *
    * @returns {String}
    */
-  static async dirname (path) {
+  static async dirname (path: string): Promise<string> {
     return Path.dirname(path)
   }
 
@@ -489,10 +466,10 @@ class Filesystem {
    *
    * @returns {Boolean}
    */
-  static async isFile (path) {
-    const stats = await this.stat(path)
-
-    return stats.isFile()
+  static async isFile (path: string): Promise<boolean> {
+    return upon(this.stat(path), (stats: Stats) => {
+      return stats.isFile()
+    })
   }
 
   /**
@@ -502,11 +479,9 @@ class Filesystem {
    *
    * @returns {Boolean}
    */
-  static async isDirectory (path) {
-    const stats = await this.stat(path)
-
-    return stats.isDirectory()
+  static async isDirectory (path: string): Promise<boolean> {
+    return upon(this.stat(path), (stats: Stats) => {
+      return stats.isDirectory()
+    })
   }
 }
-
-module.exports = Filesystem
