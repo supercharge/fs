@@ -2,6 +2,7 @@
 
 import Os from 'os'
 import Path from 'path'
+import { AppendOptions } from '../types'
 import ReadRecursive from 'recursive-readdir'
 import { tap, upon } from '@supercharge/goodies'
 import Fs, { Stats, SymlinkType } from 'fs-extra'
@@ -502,5 +503,29 @@ export class Filesystem {
     return upon(this.stat(path), (stats: Stats) => {
       return stats.isDirectory()
     })
+  }
+
+  /**
+   * Append the given `content` to a `file`. This method
+   * creates the `file` if it does not exist yet.
+   *
+   * @param {String|Buffer} file
+   * @param {String|Buffer} content
+   * @param {String|Object} options
+   */
+  static async append (file: string | Buffer | number, content: string | Buffer, options?: AppendOptions): Promise<void> {
+    return Fs.appendFile(file, content, options)
+  }
+
+  /**
+   * Rename a file located at `src` to the pathname defined by `dest`.
+   * Both, `src` and `dest` must be file paths. If a file already
+   * exists at the `dest` location, it will be overwritten.
+   *
+   * @param {String} src
+   * @param {String} dest
+   */
+  static async rename (src: string, dest: string): Promise<void> {
+    return Fs.rename(src, dest)
   }
 }

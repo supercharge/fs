@@ -16,12 +16,12 @@ function randomName () {
   return Crypto.randomBytes(256).slice(0, 16).toString('hex')
 }
 
-async function tempFile (file = `${randomName()}.txt`) {
+async function createFilePath (file = `${randomName()}.txt`) {
   return Path.resolve(tempDir, file)
 }
 
 async function ensureTempFile (filename = `${randomName()}.txt`) {
-  return tap(tempFile(filename), async file => {
+  return tap(createFilePath(filename), async file => {
     await Filesystem.ensureFile(file)
   })
 }
@@ -116,7 +116,7 @@ describe('Filesystem', () => {
   })
 
   it('ensureFile', async () => {
-    const file = await tempFile()
+    const file = await createFilePath()
     await Filesystem.ensureFile(file)
     expect(Fs.existsSync(file)).to.be.true()
   })
@@ -433,5 +433,37 @@ describe('Filesystem', () => {
     expect(
       await Filesystem.size(file)
     ).to.equal(5)
+  })
+
+  it('append', async () => {
+    const file = await ensureTempFile()
+
+    expect(await Filesystem.readFile(file)).to.equal('')
+    await Filesystem.append(file, 'Appended content')
+    expect(await Filesystem.readFile(file)).to.equal('Appended content')
+
+    // creates file if not existent
+    const newFile = await createFilePath()
+
+    expect(await Filesystem.notExists(newFile)).to.be.true()
+    await Filesystem.append(newFile, 'new file')
+    expect(await Filesystem.exists(newFile)).to.be.true()
+  })
+
+  it('rename', async () => {
+    const oldPath = await ensureTempFile()
+    const newPath = await createFilePath('new.txt')
+
+    await Filesystem.rename(oldPath, newPath)
+    expect(await Filesystem.exists(oldPath)).to.be.false()
+    expect(await Filesystem.exists(newPath)).to.be.true()
+
+    // overwrites dest
+    const src = await ensureTempFile()
+    const dest = await ensureTempFile()
+
+    await Filesystem.rename(src, dest)
+    expect(await Filesystem.exists(src)).to.be.false()
+    expect(await Filesystem.exists(dest)).to.be.true()
   })
 })
