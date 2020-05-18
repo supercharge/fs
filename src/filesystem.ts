@@ -5,8 +5,8 @@ import Path from 'path'
 import { AppendOptions } from '../types'
 import ReadRecursive from 'recursive-readdir'
 import { tap, upon } from '@supercharge/goodies'
-import Fs, { Stats, SymlinkType } from 'fs-extra'
 import { random as randomString, isDate } from './helper'
+import Fs, { Stats, SymlinkType, CopyOptions } from 'fs-extra'
 import Lockfile, { LockOptions, UnlockOptions, CheckOptions } from 'proper-lockfile'
 
 export class Filesystem {
@@ -241,7 +241,7 @@ export class Filesystem {
    * @param {String} dest - destination path
    * @param {Object} options
    */
-  static async copy (src: string, dest: string, options: object): Promise<void> {
+  static async copy (src: string, dest: string, options: CopyOptions): Promise<void> {
     return Fs.copy(src, dest, options)
   }
 
