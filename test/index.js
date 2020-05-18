@@ -347,16 +347,15 @@ describe('Filesystem', () => {
     const file = await Filesystem.tempFile()
     expect(file).to.exist()
 
-    const endsWithDotTest = await Filesystem.tempFile({ extension: '.test' })
+    const endsWithDotTest = await Filesystem.tempFile('abc.test')
     expect(endsWithDotTest).to.exist().and.to.endWith('.test')
 
-    const endsWithTest = await Filesystem.tempFile({ extension: 'test' })
-    expect(endsWithTest).to.exist().and.to.endWith('.test')
+    const testFile = await Filesystem.tempFile('test')
+    expect(await Filesystem.exists(testFile)).to.be.true()
+    expect(testFile).to.exist().and.to.not.endWith('.test')
 
-    const nameIsTesting = await Filesystem.tempFile({ name: 'testing' })
-    await expect(nameIsTesting).to.exist().and.to.endWith('testing')
-
-    await expect(Filesystem.tempFile({ extension: '.test', name: 'testing' })).to.reject()
+    const nullTestFile = await Filesystem.tempFile(null)
+    expect(await Filesystem.exists(nullTestFile)).to.be.true()
   })
 
   it('tempDir', async () => {
