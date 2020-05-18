@@ -6,8 +6,8 @@ import { AppendOptions } from '../types'
 import ReadRecursive from 'recursive-readdir'
 import { tap, upon } from '@supercharge/goodies'
 import { random as randomString, isDate } from './helper'
-import Fs, { Stats, SymlinkType, CopyOptions } from 'fs-extra'
 import Lockfile, { LockOptions, UnlockOptions, CheckOptions } from 'proper-lockfile'
+import Fs, { Stats, SymlinkType, CopyOptions, WriteFileOptions, MoveOptions } from 'fs-extra'
 
 export class Filesystem {
   /**
@@ -101,7 +101,7 @@ export class Filesystem {
       await Fs.access(path, mode)
 
       return true
-    } catch (error) {
+    } catch {
       return false
     }
   }
@@ -184,7 +184,7 @@ export class Filesystem {
    * excluding `.`, `..`, and dotfiles.
    *
    * @param {String} path
-   * @param {Object} options config object -  supports the `ignore` property: list of ignored files
+   * @param {Object} options config object - supports the `ignore` property: list of ignored files
    *
    * @returns {Array}
    */
@@ -205,7 +205,7 @@ export class Filesystem {
    * @param  {String} content
    * @param  {Object} options
    */
-  static async writeFile (file: string, content: string, options: string|object = 'utf8'): Promise<void> {
+  static async writeFile (file: string, content: string, options: WriteFileOptions): Promise<void> {
     return Fs.outputFile(file, content, options)
   }
 
@@ -254,7 +254,7 @@ export class Filesystem {
    * @param {String} dest - destination path
    * @param {Object} options
    */
-  static async move (src: string, dest: string, options: object = {}): Promise<void> {
+  static async move (src: string, dest: string, options: MoveOptions = {}): Promise<void> {
     return Fs.move(src, dest, options)
   }
 
@@ -369,7 +369,7 @@ export class Filesystem {
    *
    * @returns {Boolean}
    */
-  static async isLocked (file: string, options: CheckOptions = {}): Promise<boolean> {
+  static async isLocked (file: string, options?: CheckOptions): Promise<boolean> {
     return Lockfile.check(file, options)
   }
 
@@ -381,7 +381,7 @@ export class Filesystem {
    *
    * @returns {Boolean}
    */
-  static async isNotLocked (file: string, options: CheckOptions = {}): Promise<boolean> {
+  static async isNotLocked (file: string, options?: CheckOptions): Promise<boolean> {
     return !await this.isLocked(file, options)
   }
 
@@ -394,21 +394,16 @@ export class Filesystem {
    *
    * @returns {String}
    */
-  static async tempFile ({ extension = '', name = '' } = {}): Promise<string> {
-    if (extension && name) {
-      throw new Error('The `name` and `extension` options are mutually exclusive.')
-    }
+  static async tempFile (name?: string): Promise<string> {
+    const file = Path.resolve(await this.tempDir(), name ?? randomString())
 
-    if (name) {
-      return Path.resolve(await this.tempDir(), name)
-    }
-
-    return `${await this.tempDir()}.${extension.replace(/^\./, '')}`
+    return tap(file, async () => {
+      return this.ensureFile(file)
+    })
   }
 
   /**
-   * Create a temporary directory path which will
-   * be cleaned up by the operating system.
+   * Create a temporary directory path which will be cleaned up by the operating system.
    *
    * @returns {String}
    */
@@ -430,9 +425,8 @@ export class Filesystem {
   }
 
   /**
-   * Returns the extension of `file`. For example,
-   * returns `.html` for the HTML file located
-   * at `/path/to/index.html`.
+   * Returns the extension of `file`. For example, returns `.html`
+   * for the HTML file located at `/path/to/index.html`.
    *
    * @param {String} file
    *
