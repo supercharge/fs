@@ -12,9 +12,9 @@
 - move code to TypeScript to automatically generate Typings
 
 ### Breaking Changes
-We noticed issues using the [`lockfile`](https://github.com/npm/lockfile) package to lock and unlock files. Lock would even be aquired for non-existent files.
+We noticed issues using the [`lockfile`](https://github.com/npm/lockfile) package to lock and unlock files. The file lock would even be aquired for non-existent files.
 
-This package now uses the [`proper-lockfile`](https://github.com/moxystudio/node-proper-lockfile) package to aquire, check, and release file locks.
+We switched the dependency for locking and unlocking files to [`proper-lockfile`](https://github.com/moxystudio/node-proper-lockfile). This package is now used to aquire, check, and release file locks.
 
 **Breaking Changes**
 - require Node.js v10 or later
