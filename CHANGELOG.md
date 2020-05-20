@@ -9,7 +9,7 @@
 - `isNotLocked(file, options)` method to determine whether a given `file` is not locked
 
 ### Updated
-- move code to TypeScript to automatically generate Typings
+- move code to TypeScript to automatically generate typings
 
 ### Breaking Changes
 We noticed issues using the [`lockfile`](https://github.com/npm/lockfile) package to lock and unlock files. The file lock would even be aquired for non-existent files.
@@ -18,7 +18,7 @@ We switched the dependency for locking and unlocking files to [`proper-lockfile`
 
 **Breaking Changes**
 - require Node.js v10 or later
-- removed internally used `prepareLockFile` method because it's not needed anymore
+- removed internally used `prepareLockFile` method because it’s not needed anymore
 
 
 ## 1.0.0 - 2020-02-12
