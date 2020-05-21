@@ -1,7 +1,7 @@
 # Changelog
 
 
-## [2.0.0](https://github.com/supercharge/filesystem/compare/v1.0.0...v2.0.0) - 2020-05-xx
+## [2.0.0](https://github.com/supercharge/filesystem/compare/v1.0.0...v2.0.0) - 2020-05-21
 
 ### Added
 - `rename(src, dest)` method to rename a `src` pathname to `dest`
