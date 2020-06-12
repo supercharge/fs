@@ -1,6 +1,15 @@
 # Changelog
 
 
+## [2.1.0](https://github.com/supercharge/filesystem/compare/v2.0.0...v2.1.0) - 2020-06-12
+
+### Added
+- export TypeScript types that are used by this package
+
+### Updated
+- bump dependencies
+
+
 ## [2.0.0](https://github.com/supercharge/filesystem/compare/v1.0.0...v2.0.0) - 2020-05-21
 
 ### Added
