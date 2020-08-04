@@ -50,7 +50,7 @@ describe('Filesystem', () => {
     const lastModifiedInSeconds = Math.floor(lastModified.getTime() / 1000)
     const nowInSeconds = Math.floor(new Date().getTime() / 1000)
 
-    expect(lastModifiedInSeconds).to.equal(nowInSeconds)
+    expect(lastModifiedInSeconds).to.be.in.range(nowInSeconds, nowInSeconds + 1)
   })
 
   it('lastAccessed', async () => {
@@ -60,7 +60,7 @@ describe('Filesystem', () => {
     const lastAccessedInSeconds = Math.floor(lastAccessed.getTime() / 1000)
     const nowInSeconds = Math.floor(new Date().getTime() / 1000)
 
-    expect(lastAccessedInSeconds).to.equal(nowInSeconds)
+    expect(lastAccessedInSeconds).to.be.in.range(nowInSeconds, nowInSeconds + 1)
   })
 
   it('updateTimestamps', async () => {
