@@ -7,7 +7,7 @@
     "url": "https://github.com/supercharge/filesystem/issues"
   },
   "dependencies": {
-    "@supercharge/goodies": "~1.4.0",
+    "@supercharge/goodies": "~1.5.1",
     "@types/fs-extra": "~9.0.1",
     "@types/proper-lockfile": "~4.1.1",
     "@types/recursive-readdir": "~2.2.0",
@@ -18,15 +18,15 @@
   "devDependencies": {
     "@hapi/code": "~7.0.0",
     "@hapi/lab": "~21.0.0",
-    "@typescript-eslint/eslint-plugin": "~2.34.0",
-    "eslint": "~6.8.0",
+    "@typescript-eslint/eslint-plugin": "~3.8.0",
+    "eslint": "~7.6.0",
     "eslint-config-standard": "~14.1.1",
-    "eslint-config-standard-with-typescript": "~17.0.0",
-    "eslint-plugin-import": "~2.20.2",
+    "eslint-config-standard-with-typescript": "~18.0.2",
+    "eslint-plugin-import": "~2.22.0",
     "eslint-plugin-node": "~11.1.0",
     "eslint-plugin-promise": "~4.2.1",
     "eslint-plugin-standard": "~4.0.1",
-    "typescript": "~3.9.5"
+    "typescript": "~3.9.7"
   },
   "engines": {
     "node": ">=10"
