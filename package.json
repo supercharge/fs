@@ -33,8 +33,7 @@
   },
   "files": [
     "dist",
-    "types",
-    "index.js"
+    "types"
   ],
   "homepage": "https://github.com/supercharge/filesystem",
   "keywords": [
@@ -45,7 +44,7 @@
     "superchargejs"
   ],
   "license": "MIT",
-  "main": "index.js",
+  "main": "dist",
   "publishConfig": {
     "access": "public"
   },
