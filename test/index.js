@@ -2,13 +2,9 @@
 
 const Fs = require('fs')
 const Path = require('path')
-const Lab = require('@hapi/lab')
 const Crypto = require('crypto')
 const Filesystem = require('..')
-const { expect } = require('@hapi/code')
 const { tap } = require('@supercharge/goodies')
-
-const { describe, it, before, after } = (exports.lab = Lab.script())
 
 const tempDir = Path.resolve(__dirname, 'tmp')
 
@@ -27,11 +23,11 @@ async function ensureTempFile (filename = `${randomName()}.txt`) {
 }
 
 describe('Filesystem', () => {
-  before(async () => {
+  beforeAll(async () => {
     Fs.mkdirSync(tempDir)
   })
 
-  after(async () => {
+  afterAll(async () => {
     await Filesystem.removeDir(tempDir)
   })
 
@@ -40,7 +36,7 @@ describe('Filesystem', () => {
     const stat = await Filesystem.stat(file)
     const statSync = await Fs.statSync(file)
 
-    expect(stat).to.equal(statSync)
+    expect(stat).toEqual(statSync)
   })
 
   it('lastModified', async () => {
@@ -50,7 +46,8 @@ describe('Filesystem', () => {
     const lastModifiedInSeconds = Math.floor(lastModified.getTime() / 1000)
     const nowInSeconds = Math.floor(new Date().getTime() / 1000)
 
-    expect(lastModifiedInSeconds).to.be.in.range(nowInSeconds, nowInSeconds + 1)
+    expect(lastModifiedInSeconds).toBeGreaterThanOrEqual(nowInSeconds)
+    expect(lastModifiedInSeconds).toBeLessThanOrEqual(nowInSeconds + 1)
   })
 
   it('lastAccessed', async () => {
@@ -60,27 +57,28 @@ describe('Filesystem', () => {
     const lastAccessedInSeconds = Math.floor(lastAccessed.getTime() / 1000)
     const nowInSeconds = Math.floor(new Date().getTime() / 1000)
 
-    expect(lastAccessedInSeconds).to.be.in.range(nowInSeconds, nowInSeconds + 1)
+    expect(lastAccessedInSeconds).toBeGreaterThanOrEqual(nowInSeconds)
+    expect(lastAccessedInSeconds).toBeLessThanOrEqual(nowInSeconds + 1)
   })
 
   it('updateTimestamps', async () => {
     const file = await ensureTempFile()
-    expect(await Filesystem.lastAccessed(file)).to.exist()
-    expect(await Filesystem.lastModified(file)).to.exist()
+    expect(await Filesystem.lastAccessed(file)).toBeDefined()
+    expect(await Filesystem.lastModified(file)).toBeDefined()
 
     const now = new Date()
     await Filesystem.updateTimestamps(file, now, now)
-    expect(await Filesystem.lastAccessed(file)).to.equal(now)
-    expect(await Filesystem.lastModified(file)).to.equal(now)
+    expect(await Filesystem.lastAccessed(file)).toEqual(now)
+    expect(await Filesystem.lastModified(file)).toEqual(now)
 
     // updating the timestamps expects instances of "Date"
-    await expect(Filesystem.updateTimestamps(file, Date.now(), now)).to.reject()
-    await expect(Filesystem.updateTimestamps(file, now, Date.now())).to.reject()
+    await expect(Filesystem.updateTimestamps(file, Date.now(), now)).rejects.toThrow()
+    await expect(Filesystem.updateTimestamps(file, now, Date.now())).rejects.toThrow()
   })
 
   it('lastModifiedNonExistentFile', async () => {
     const file = await ensureTempFile()
-    await expect(Filesystem.lastModified(`${file}.unavailable`)).to.reject()
+    await expect(Filesystem.lastModified(`${file}.unavailable`)).rejects.toThrow()
   })
 
   it('canAccess', async () => {
@@ -88,7 +86,7 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.canAccess(file, Fs.constants.W_OK)
-    ).to.be.true()
+    ).toBe(true)
   })
 
   it('pathExists', async () => {
@@ -96,7 +94,7 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.pathExists(file)
-    ).to.be.true()
+    ).toBe(true)
   })
 
   it('exists', async () => {
@@ -104,21 +102,21 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.exists(file)
-    ).to.be.true()
+    ).toBe(true)
   })
 
   it('notExists', async () => {
     const file = await ensureTempFile()
-    expect(await Filesystem.notExists(file)).to.be.false()
+    expect(await Filesystem.notExists(file)).toBe(false)
 
     await Filesystem.removeFile(file)
-    expect(await Filesystem.notExists(file)).to.be.true()
+    expect(await Filesystem.notExists(file)).toBe(true)
   })
 
   it('ensureFile', async () => {
     const file = await createFilePath()
     await Filesystem.ensureFile(file)
-    expect(Fs.existsSync(file)).to.be.true()
+    expect(Fs.existsSync(file)).toBe(true)
   })
 
   it('readFile', async () => {
@@ -127,7 +125,7 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.readFile(file)
-    ).to.equal('Hello Supercharge')
+    ).toEqual('Hello Supercharge')
   })
 
   it('files', async () => {
@@ -139,7 +137,7 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.files(dirPath)
-    ).to.equal(['test.txt'])
+    ).toEqual(['test.txt'])
   })
 
   it('allFiles', async () => {
@@ -156,14 +154,14 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.allFiles(dirPath)
-    ).to.equal([
+    ).toEqual([
       Path.resolve(dirPath, 'test.txt'),
       Path.resolve(subDirPath, 'sub.txt')
     ])
 
     expect(
       await Filesystem.allFiles(dirPath, { ignore: 'helper' })
-    ).to.equal([
+    ).toEqual([
       Path.resolve(dirPath, 'test.txt'),
       Path.resolve(subDirPath, 'sub.txt')
     ])
@@ -175,7 +173,7 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.readFile(file)
-    ).to.equal('Hello Supercharge')
+    ).toEqual('Hello Supercharge')
   })
 
   it('remove', async () => {
@@ -184,7 +182,7 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.exists(file)
-    ).to.be.false()
+    ).toBe(false)
   })
 
   it('removeFile', async () => {
@@ -193,7 +191,7 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.exists(file)
-    ).to.be.false()
+    ).toBe(false)
   })
 
   it('copy', async () => {
@@ -204,8 +202,8 @@ describe('Filesystem', () => {
     const sourceExists = await Filesystem.exists(source)
     const destExists = await Filesystem.exists(destination)
 
-    expect(sourceExists).to.be.true()
-    expect(destExists).to.be.true()
+    expect(sourceExists).toBe(true)
+    expect(destExists).toBe(true)
   })
 
   it('move', async () => {
@@ -215,11 +213,11 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.exists(source)
-    ).to.be.false()
+    ).toBe(false)
 
     expect(
       await Filesystem.exists(destination)
-    ).to.be.true()
+    ).toBe(true)
   })
 
   it('ensureDir', async () => {
@@ -228,7 +226,7 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.exists(dir)
-    ).to.be.true()
+    ).toBe(true)
   })
 
   it('removeDir', async () => {
@@ -237,13 +235,13 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.exists(dir)
-    ).to.be.true()
+    ).toBe(true)
 
     await Filesystem.removeDir(dir)
 
     expect(
       await Filesystem.exists(dir)
-    ).to.be.false()
+    ).toBe(false)
   })
 
   it('emptyDir', async () => {
@@ -257,31 +255,31 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.files(dir)
-    ).to.equal([])
+    ).toEqual([])
   })
 
   it('chmodAsString', async () => {
     const file1 = await ensureTempFile()
     await Filesystem.chmod(file1, '400') // read-only
 
-    expect(await Filesystem.canAccess(file1, Fs.constants.W_OK)).to.be.false()
+    expect(await Filesystem.canAccess(file1, Fs.constants.W_OK)).toBe(false)
 
     const file2 = await ensureTempFile()
     await Filesystem.chmod(file2, '600') // read-write
 
-    expect(await Filesystem.canAccess(file2, Fs.constants.W_OK)).to.be.true()
+    expect(await Filesystem.canAccess(file2, Fs.constants.W_OK)).toBe(true)
   })
 
   it('chmodAsInteger', async () => {
     const file1 = await ensureTempFile()
     await Filesystem.chmod(file1, 400) // read-only
 
-    expect(await Filesystem.canAccess(file1, Fs.constants.W_OK)).to.be.false()
+    expect(await Filesystem.canAccess(file1, Fs.constants.W_OK)).toBe(false)
 
     const file2 = await ensureTempFile()
     await Filesystem.chmod(file2, 600) // read-write
 
-    expect(await Filesystem.canAccess(file2, Fs.constants.W_OK)).to.be.true()
+    expect(await Filesystem.canAccess(file2, Fs.constants.W_OK)).toBe(true)
   })
 
   it('ensureLink', async () => {
@@ -291,7 +289,7 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.exists(link)
-    ).to.be.true()
+    ).toBe(true)
   })
 
   it('ensureSymlink', async () => {
@@ -301,7 +299,7 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.exists(link)
-    ).to.be.true()
+    ).toBe(true)
   })
 
   it('lock', async () => {
@@ -309,58 +307,62 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.isLocked(file)
-    ).to.be.false()
+    ).toBe(false)
 
     await Filesystem.lock(file)
     await Filesystem.lock(file)
 
     expect(
       await Filesystem.isLocked(file)
-    ).to.be.true()
+    ).toBe(true)
 
     await Filesystem.unlock(file)
 
     expect(
       await Filesystem.isLocked(file)
-    ).to.be.false()
+    ).toBe(false)
   })
 
   it('unlock', async () => {
     const file = await ensureTempFile()
 
-    await expect(Filesystem.unlock(file)).to.not.reject()
+    expect(
+      await Filesystem.unlock(file)
+    ).toBeUndefined()
 
     await Filesystem.lock(file)
 
     expect(
       await Filesystem.isLocked(file)
-    ).to.be.true()
+    ).toBe(true)
 
     await Filesystem.unlock(file)
 
     expect(
       await Filesystem.isLocked(file)
-    ).to.be.false()
+    ).toBe(false)
   })
 
   it('tempFile', async () => {
     const file = await Filesystem.tempFile()
-    expect(file).to.exist()
+    expect(file).toBeDefined()
 
     const endsWithDotTest = await Filesystem.tempFile('abc.test')
-    expect(endsWithDotTest).to.exist().and.to.endWith('.test')
+    expect(endsWithDotTest).toBeDefined()
+    expect(String(endsWithDotTest).endsWith('.test')).toBe(true)
 
     const testFile = await Filesystem.tempFile('test')
-    expect(await Filesystem.exists(testFile)).to.be.true()
-    expect(testFile).to.exist().and.to.not.endWith('.test')
+    expect(await Filesystem.exists(testFile)).toBe(true)
+    expect(testFile).toBeDefined()
+    expect(String(testFile).endsWith('.test')).toBe(false)
 
     const nullTestFile = await Filesystem.tempFile(null)
-    expect(await Filesystem.exists(nullTestFile)).to.be.true()
+    expect(await Filesystem.exists(nullTestFile)).toBe(true)
   })
 
   it('tempDir', async () => {
     const dir = await Filesystem.tempDir()
-    expect(await Filesystem.exists(dir)).to.be.true()
+    expect(await Filesystem.exists(dir)).toBe(true)
   })
 
   it('extension', async () => {
@@ -369,7 +371,7 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.extension(Path.resolve(__dirname, file))
-    ).to.equal('.test')
+    ).toEqual('.test')
   })
 
   it('basename', async () => {
@@ -378,7 +380,7 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.basename(Path.resolve(__dirname, file))
-    ).to.equal(filename)
+    ).toEqual(filename)
   })
 
   it('filename', async () => {
@@ -387,7 +389,7 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.filename(Path.resolve(__dirname, file))
-    ).to.equal(filename)
+    ).toEqual(filename)
   })
 
   it('dirname', async () => {
@@ -395,7 +397,7 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.dirname(Path.resolve(__dirname, file))
-    ).to.equal(Path.parse(file).dir)
+    ).toEqual(Path.parse(file).dir)
   })
 
   it('isFile', async () => {
@@ -403,11 +405,11 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.isFile(file)
-    ).to.be.true()
+    ).toBe(true)
 
     expect(
       await Filesystem.isFile(Path.parse(file).dir)
-    ).to.be.false()
+    ).toBe(false)
   })
 
   it('isDirectory', async () => {
@@ -415,38 +417,38 @@ describe('Filesystem', () => {
 
     expect(
       await Filesystem.isDirectory(Path.parse(file).dir)
-    ).to.be.true()
+    ).toBe(true)
 
     expect(
       await Filesystem.isDirectory(file)
-    ).to.be.false()
+    ).toBe(false)
   })
 
   it('size', async () => {
     const file = await ensureTempFile()
     expect(
       await Filesystem.size(file)
-    ).to.equal(0)
+    ).toEqual(0)
 
     await Filesystem.writeFile(file, 'hello')
     expect(
       await Filesystem.size(file)
-    ).to.equal(5)
+    ).toEqual(5)
   })
 
   it('append', async () => {
     const file = await ensureTempFile()
 
-    expect(await Filesystem.readFile(file)).to.equal('')
+    expect(await Filesystem.readFile(file)).toEqual('')
     await Filesystem.append(file, 'Appended content')
-    expect(await Filesystem.readFile(file)).to.equal('Appended content')
+    expect(await Filesystem.readFile(file)).toEqual('Appended content')
 
     // creates file if not existent
     const newFile = await createFilePath()
 
-    expect(await Filesystem.notExists(newFile)).to.be.true()
+    expect(await Filesystem.notExists(newFile)).toBe(true)
     await Filesystem.append(newFile, 'new file')
-    expect(await Filesystem.exists(newFile)).to.be.true()
+    expect(await Filesystem.exists(newFile)).toBe(true)
   })
 
   it('rename', async () => {
@@ -454,15 +456,15 @@ describe('Filesystem', () => {
     const newPath = await createFilePath('new.txt')
 
     await Filesystem.rename(oldPath, newPath)
-    expect(await Filesystem.exists(oldPath)).to.be.false()
-    expect(await Filesystem.exists(newPath)).to.be.true()
+    expect(await Filesystem.exists(oldPath)).toBe(false)
+    expect(await Filesystem.exists(newPath)).toBe(true)
 
     // overwrites dest
     const src = await ensureTempFile()
     const dest = await ensureTempFile()
 
     await Filesystem.rename(src, dest)
-    expect(await Filesystem.exists(src)).to.be.false()
-    expect(await Filesystem.exists(dest)).to.be.true()
+    expect(await Filesystem.exists(src)).toBe(false)
+    expect(await Filesystem.exists(dest)).toBe(true)
   })
 })
