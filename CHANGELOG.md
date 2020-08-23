@@ -1,6 +1,18 @@
 # Changelog
 
 
+## [2.2.0](https://github.com/supercharge/filesystem/compare/v2.1.0...v2.2.0) - 2020-08-xx
+
+### Updated
+- bump dependencies
+- change `main` entrypoint in `package.json` to `dist` folder
+- move test runner from `@hapi/lab` to `jest`
+- move assertions from `@hapi/code` to `jest`
+
+### Removed
+- remove `index.js` file which acted as a middleman to export from `dist` folder
+
+
 ## [2.1.0](https://github.com/supercharge/filesystem/compare/v2.0.0...v2.1.0) - 2020-06-12
 
 ### Added
