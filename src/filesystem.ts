@@ -420,8 +420,21 @@ export class Filesystem {
    */
   static async tempPath (): Promise<string> {
     return Path.resolve(
-      await Fs.realpath(Os.tmpdir()), randomString()
+      await this.realpath(Os.tmpdir()), randomString()
     )
+  }
+
+  /**
+   * Returns the fully resolve, absolute file path to the given `path`.
+   * Resolves any relative paths, like `..` or `.`, and symbolic links.
+   *
+   * @param {String} path
+   * @param {Object} cache
+   *
+   * @returns {String}
+   */
+  static async realpath (path: string, cache?: { [path: string]: string }): Promise<string> {
+    return await Fs.realpath(path, cache)
   }
 
   /**
