@@ -7,7 +7,7 @@ import Crypto from 'crypto'
  *
  * @returns {String}
  */
-export function random (): string {
+export function randomString (): string {
   return Crypto
     .randomBytes(256)
     .toString('hex')
