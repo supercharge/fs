@@ -4,8 +4,8 @@ import Os from 'os'
 import Path from 'path'
 import { AppendOptions } from '../types'
 import ReadRecursive from 'recursive-readdir'
+import { randomString, isDate } from './helper'
 import { tap, upon } from '@supercharge/goodies'
-import { random as randomString, isDate } from './helper'
 import Lockfile, { LockOptions, UnlockOptions, CheckOptions } from 'proper-lockfile'
 import Fs, { Stats, SymlinkType, CopyOptions, WriteFileOptions, MoveOptions } from 'fs-extra'
 
@@ -420,7 +420,7 @@ export class Filesystem {
    */
   static async tempPath (): Promise<string> {
     return Path.resolve(
-      await this.realpath(Os.tmpdir()), randomString()
+      await this.realPath(Os.tmpdir()), randomString()
     )
   }
 
@@ -433,7 +433,7 @@ export class Filesystem {
    *
    * @returns {String}
    */
-  static async realpath (path: string, cache?: { [path: string]: string }): Promise<string> {
+  static async realPath (path: string, cache?: { [path: string]: string }): Promise<string> {
     return await Fs.realpath(path, cache)
   }
 
@@ -451,7 +451,7 @@ export class Filesystem {
 
   /**
    * Returns the trailing name component from a file path. For example,
-   * returns `file.png` from the path `/home/user/file.png/`.
+   * returns `file.png` from the path `/home/user/file.png`.
    *
    * @param {String} path
    * @param {String} extension
