@@ -3,6 +3,9 @@
 
 ## [2.2.0](https://github.com/supercharge/filesystem/compare/v2.1.0...v2.2.0) - 2020-08-xx
 
+### Added
+- add `realPath` method
+
 ### Updated
 - bump dependencies
 - change `main` entrypoint in `package.json` to `dist` folder
