@@ -414,6 +414,21 @@ export class Filesystem {
   }
 
   /**
+   * Returns the path to the user’s home directory. You may pass a `path` to which
+   * the function should resolve in the user’s home directory. This method does
+   * **not** ensure that the resolved path exists. Please do that yourself.
+   *
+   * @param {String} path
+   *
+   * @returns {String}
+   */
+  static async homeDir (path?: string): Promise<string> {
+    return path
+      ? Path.resolve(Os.homedir(), path)
+      : Os.homedir()
+  }
+
+  /**
    * Generates a random, temporary path on the filesystem.
    *
    * @returns {String}

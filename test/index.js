@@ -467,4 +467,14 @@ describe('Filesystem', () => {
     expect(await Filesystem.exists(src)).toBe(false)
     expect(await Filesystem.exists(dest)).toBe(true)
   })
+
+  it('homeDir', async () => {
+    const homeDir = await Filesystem.homeDir()
+    expect(homeDir).not.toBeNull()
+    expect(homeDir.startsWith('/')).toBe(true)
+
+    const homeDirAt = await Filesystem.homeDir('test.txt')
+    expect(homeDirAt).not.toBeNull()
+    expect(homeDirAt.endsWith('/test.txt')).toBe(true)
+  })
 })
