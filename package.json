@@ -1,7 +1,7 @@
 {
   "name": "@supercharge/filesystem",
   "description": "Async filesystem methods for Node.js",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "author": "Marcus Pöhls <marcus@superchargejs.com>",
   "bugs": {
     "url": "https://github.com/supercharge/filesystem/issues"
