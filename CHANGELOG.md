@@ -1,10 +1,11 @@
 # Changelog
 
 
-## [2.2.0](https://github.com/supercharge/filesystem/compare/v2.1.0...v2.2.0) - 2020-08-xx
+## [2.2.0](https://github.com/supercharge/filesystem/compare/v2.1.0...v2.2.0) - 2021-02-xx
 
 ### Added
-- add `realPath` method
+- add `homeDir(path?)` method: resolves the path to the user’s home directory
+- add `realPath` method: returns the real file path by resolving symbolic links
 
 ### Updated
 - bump dependencies
