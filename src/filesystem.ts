@@ -107,7 +107,7 @@ export class Filesystem {
   }
 
   /**
-   * Determines whether the given `path` exists on the file system.
+   * Determine whether the given `path` exists on the file system.
    *
    * @param {String} path
    *
@@ -118,8 +118,8 @@ export class Filesystem {
   }
 
   /**
-   * Shortcut for `pathExists` to check whether a given file
-   * or directory exists on the file system.
+   * Shortcut for `pathExists` determining whether a given file or
+   * directory exists at the given `path` on the file system.
    *
    * @param {String} path
    *
@@ -130,7 +130,7 @@ export class Filesystem {
   }
 
   /**
-   * Determines wether the given `path` does not exists.
+   * Determine wether the given `path` does not exists.
    *
    * @param {String} path
    *
@@ -513,7 +513,7 @@ export class Filesystem {
   }
 
   /**
-   * Determines whether the given `path` is a file.
+   * Determine whether the given `path` is a file.
    *
    * @param {String} path
    *
@@ -526,7 +526,7 @@ export class Filesystem {
   }
 
   /**
-   * Determines whether the given `path` is a directory.
+   * Determine whether the given `path` is a directory.
    *
    * @param {String} path
    *
