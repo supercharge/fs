@@ -513,7 +513,7 @@ export class Filesystem {
   }
 
   /**
-   * Determine whether the given `path` is a file.
+   * Determine whether a file exists at the given `path`.
    *
    * @param {String} path
    *
@@ -526,7 +526,7 @@ export class Filesystem {
   }
 
   /**
-   * Determine whether the given `path` is a directory.
+   * Determine whether a directory exists at the given `path`.
    *
    * @param {String} path
    *
