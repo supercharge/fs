@@ -476,5 +476,9 @@ describe('Filesystem', () => {
     const homeDirAt = await Filesystem.homeDir('test.txt')
     expect(homeDirAt).not.toBeNull()
     expect(homeDirAt.endsWith('/test.txt')).toBe(true)
+
+    const homeDirNested = await Filesystem.homeDir('.my-app/settings.yml')
+    expect(homeDirNested).not.toBeNull()
+    expect(homeDirNested.endsWith('.my-app/settings.yml')).toBe(true)
   })
 })
