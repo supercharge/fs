@@ -1,7 +1,7 @@
 # Changelog
 
 
-## [2.3.0](https://github.com/supercharge/filesystem/compare/v2.2.1...v2.3.0) - 2021-02-xx
+## [2.3.0](https://github.com/supercharge/filesystem/compare/v2.2.1...v2.3.0) - 2021-02-14
 
 ### Added
 - add `touch(file)` method: update the file’s last accessed and modified timestamps to the current time. Creates the `file` if it doesn’t exist.
