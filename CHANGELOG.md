@@ -1,7 +1,7 @@
 # Changelog
 
 
-## [2.2.0](https://github.com/supercharge/filesystem/compare/v2.1.0...v2.2.0) - 2021-02-xx
+## [2.2.0](https://github.com/supercharge/filesystem/compare/v2.1.0...v2.2.0) - 2021-02-14
 
 ### Added
 - add `homeDir(path?)` method: resolves the path to the user’s home directory
