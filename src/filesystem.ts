@@ -19,7 +19,7 @@ export class Filesystem {
    * @returns {Stats}
    */
   static async stat (file: string): Promise<Stats> {
-    return Fs.stat(file)
+    return await Fs.stat(file)
   }
 
   /**
@@ -30,7 +30,7 @@ export class Filesystem {
    * @returns {Integer}
    */
   static async size (path: string): Promise<number> {
-    return upon(this.stat(path), (stat: Stats) => {
+    return upon(await this.stat(path), (stat: Stats) => {
       return stat.size
     })
   }
@@ -43,7 +43,7 @@ export class Filesystem {
    * @returns {Date}
    */
   static async lastModified (file: string): Promise<Date> {
-    return upon(this.stat(file), (stat: Stats) => {
+    return upon(await this.stat(file), (stat: Stats) => {
       return stat.mtime
     })
   }
@@ -56,7 +56,7 @@ export class Filesystem {
    * @returns {Date}
    */
   static async lastAccessed (file: string): Promise<Date> {
-    return upon(this.stat(file), (stat: Stats) => {
+    return upon(await this.stat(file), (stat: Stats) => {
       return stat.atime
     })
   }
@@ -81,7 +81,7 @@ export class Filesystem {
       throw new Error(`Updating the last modified timestamp for ${path} requires an instance of "Date". Received ${typeof lastAccessed}`)
     }
 
-    return Fs.utimes(path, lastAccessed, lastModified)
+    return await Fs.utimes(path, lastAccessed, lastModified)
   }
 
   /**
@@ -114,7 +114,7 @@ export class Filesystem {
    * @returns {Boolean}
    */
   static async pathExists (path: string): Promise<boolean> {
-    return Fs.pathExists(path)
+    return await Fs.pathExists(path)
   }
 
   /**
@@ -126,7 +126,7 @@ export class Filesystem {
    * @returns {Boolean}
    */
   static async exists (path: string): Promise<boolean> {
-    return this.pathExists(path)
+    return await this.pathExists(path)
   }
 
   /**
@@ -148,7 +148,7 @@ export class Filesystem {
    * @param {String} file
    */
   static async ensureFile (file: string): Promise<void> {
-    return Fs.ensureFile(file)
+    return await Fs.ensureFile(file)
   }
 
   /**
@@ -162,7 +162,7 @@ export class Filesystem {
    * @returns {String}
    */
   static async readFile (file: string, encoding: string = 'utf8'): Promise<string> {
-    return Fs.readFile(file, encoding)
+    return await Fs.readFile(file, encoding)
   }
 
   /**
@@ -175,7 +175,7 @@ export class Filesystem {
    * @returns {Array}
    */
   static async files (path: string): Promise<string[]> {
-    return Fs.readdir(path)
+    return await Fs.readdir(path)
   }
 
   /**
@@ -192,8 +192,7 @@ export class Filesystem {
     const { ignore } = options
 
     return ReadRecursive(
-      path,
-      ignore ? [].concat(ignore) : undefined
+      path, ignore ? [].concat(ignore) : undefined
     )
   }
 
@@ -206,17 +205,16 @@ export class Filesystem {
    * @param  {Object} options
    */
   static async writeFile (file: string, content: string, options: WriteFileOptions): Promise<void> {
-    return Fs.outputFile(file, content, options)
+    return await Fs.outputFile(file, content, options)
   }
 
   /**
-   * Removes a file or directory from the
-   * file system located at `path`.
+   * Removes a file or directory from the file system located at `path`.
    *
    * @param {String} path
    */
   static async remove (path: string): Promise<void> {
-    return Fs.remove(path)
+    return await Fs.remove(path)
   }
 
   /**
@@ -225,7 +223,7 @@ export class Filesystem {
    * @param {String} file
    */
   static async removeFile (file: string): Promise<void> {
-    return Fs.remove(file)
+    return await this.remove(file)
   }
 
   /**
@@ -242,7 +240,7 @@ export class Filesystem {
    * @param {Object} options
    */
   static async copy (src: string, dest: string, options: CopyOptions): Promise<void> {
-    return Fs.copy(src, dest, options)
+    return await Fs.copy(src, dest, options)
   }
 
   /**
@@ -255,7 +253,7 @@ export class Filesystem {
    * @param {Object} options
    */
   static async move (src: string, dest: string, options: MoveOptions = {}): Promise<void> {
-    return Fs.move(src, dest, options)
+    return await Fs.move(src, dest, options)
   }
 
   /**
@@ -268,7 +266,7 @@ export class Filesystem {
    * @returns {String} dir - directory path
    */
   static async ensureDir (dir: string): Promise<string> {
-    return tap(dir, async () => {
+    return await tap(dir, async () => {
       await Fs.ensureDir(dir)
     })
   }
@@ -281,7 +279,7 @@ export class Filesystem {
    * @param {String} dir - directory path
    */
   static async removeDir (dir: string): Promise<void> {
-    return Fs.remove(dir)
+    return await Fs.remove(dir)
   }
 
   /**
@@ -293,7 +291,7 @@ export class Filesystem {
    * @param {String} dir
    */
   static async emptyDir (dir: string): Promise<void> {
-    return Fs.emptyDir(dir)
+    return await Fs.emptyDir(dir)
   }
 
   /**
@@ -305,7 +303,7 @@ export class Filesystem {
    * @param {String|Integer} mode
    */
   static async chmod (file: string, mode: string): Promise<void> {
-    return Fs.chmod(file, parseInt(mode, 8))
+    return await Fs.chmod(file, parseInt(mode, 8))
   }
 
   /**
@@ -317,7 +315,7 @@ export class Filesystem {
    * @param {String} dest
    */
   static async ensureLink (src: string, dest: string): Promise<void> {
-    return Fs.ensureLink(src, dest)
+    return await Fs.ensureLink(src, dest)
   }
 
   /**
@@ -330,7 +328,7 @@ export class Filesystem {
    * @param {String} type
    */
   static async ensureSymlink (src: string, dest: string, type: SymlinkType = 'file'): Promise<void> {
-    return Fs.ensureSymlink(src, dest, type)
+    return await Fs.ensureSymlink(src, dest, type)
   }
 
   /**
@@ -370,7 +368,7 @@ export class Filesystem {
    * @returns {Boolean}
    */
   static async isLocked (file: string, options?: CheckOptions): Promise<boolean> {
-    return Lockfile.check(file, options)
+    return await Lockfile.check(file, options)
   }
 
   /**
@@ -397,8 +395,8 @@ export class Filesystem {
   static async tempFile (name?: string): Promise<string> {
     const file = Path.resolve(await this.tempDir(), name ?? randomString())
 
-    return tap(file, async () => {
-      return this.ensureFile(file)
+    return await tap(file, async () => {
+      await this.ensureFile(file)
     })
   }
 
@@ -408,7 +406,7 @@ export class Filesystem {
    * @returns {String}
    */
   static async tempDir (): Promise<string> {
-    return this.ensureDir(
+    return await this.ensureDir(
       await this.tempPath()
     )
   }
@@ -509,7 +507,7 @@ export class Filesystem {
    * @returns {Boolean}
    */
   static async isFile (path: string): Promise<boolean> {
-    return upon(this.stat(path), (stats: Stats) => {
+    return upon(await this.stat(path), (stats: Stats) => {
       return stats.isFile()
     })
   }
@@ -522,7 +520,7 @@ export class Filesystem {
    * @returns {Boolean}
    */
   static async isDirectory (path: string): Promise<boolean> {
-    return upon(this.stat(path), (stats: Stats) => {
+    return upon(await this.stat(path), (stats: Stats) => {
       return stats.isDirectory()
     })
   }
@@ -536,7 +534,7 @@ export class Filesystem {
    * @param {String|Object} options
    */
   static async append (file: string | Buffer | number, content: string | Buffer, options?: AppendOptions): Promise<void> {
-    return Fs.appendFile(file, content, options)
+    await Fs.appendFile(file, content, options)
   }
 
   /**
@@ -548,6 +546,6 @@ export class Filesystem {
    * @param {String} dest
    */
   static async rename (src: string, dest: string): Promise<void> {
-    return Fs.rename(src, dest)
+    await Fs.rename(src, dest)
   }
 }
