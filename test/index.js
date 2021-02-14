@@ -481,4 +481,27 @@ describe('Filesystem', () => {
     expect(homeDirNested).not.toBeNull()
     expect(homeDirNested.endsWith('.my-app/settings.yml')).toBe(true)
   })
+
+  it('touch', async () => {
+    const file = await createFilePath()
+
+    await Filesystem.touch(file)
+    expect(await Filesystem.exists(file)).toBe(true)
+
+    const [lastAccessed, lastModified] = [
+      await Filesystem.lastAccessed(file),
+      await Filesystem.lastModified(file)
+    ]
+
+    await new Promise(resolve => setTimeout(resolve, 10))
+    await Filesystem.touch(file)
+
+    const [lastAccessedUpdated, lastModifiedUpdated] = [
+      await Filesystem.lastAccessed(file),
+      await Filesystem.lastModified(file)
+    ]
+
+    expect(lastAccessedUpdated.getTime()).toBeGreaterThan(lastAccessed.getTime())
+    expect(lastModifiedUpdated.getTime()).toBeGreaterThan(lastModified.getTime())
+  })
 })

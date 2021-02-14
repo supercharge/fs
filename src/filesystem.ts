@@ -81,7 +81,7 @@ export class Filesystem {
       throw new Error(`Updating the last modified timestamp for ${path} requires an instance of "Date". Received ${typeof lastAccessed}`)
     }
 
-    return await Fs.utimes(path, lastAccessed, lastModified)
+    await Fs.utimes(path, lastAccessed, lastModified)
   }
 
   /**
@@ -141,6 +141,19 @@ export class Filesystem {
   }
 
   /**
+   * Updates the access and modification times of the given `file` current
+   * time. This method creates the `file` if it doesn’t exist.
+   *
+   * @param {String} file
+   */
+  static async touch (file: string): Promise<void> {
+    await this.ensureFile(file)
+
+    const now = new Date()
+    await this.updateTimestamps(file, now, now)
+  }
+
+  /**
    * Ensure that the `file` exists. If the requested file and
    * directories do not exist, they are created. If the file
    * already exists, it is NOT modified.
@@ -148,7 +161,7 @@ export class Filesystem {
    * @param {String} file
    */
   static async ensureFile (file: string): Promise<void> {
-    return await Fs.ensureFile(file)
+    await Fs.ensureFile(file)
   }
 
   /**
