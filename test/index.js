@@ -24,7 +24,7 @@ async function ensureTempFile (filename = `${randomName()}.txt`) {
 
 describe('Filesystem', () => {
   beforeAll(async () => {
-    Fs.mkdirSync(tempDir)
+    await Filesystem.ensureDir(tempDir)
   })
 
   afterAll(async () => {
@@ -503,5 +503,25 @@ describe('Filesystem', () => {
 
     expect(lastAccessedUpdated.getTime()).toBeGreaterThan(lastAccessed.getTime())
     expect(lastModifiedUpdated.getTime()).toBeGreaterThan(lastModified.getTime())
+  })
+
+  it('isSocket', async () => {
+    expect(await Filesystem.isSocket('/var/run/docker.sock')).toBe(true)
+
+    const file = await ensureTempFile()
+    expect(await Filesystem.isSocket(file)).toBe(false)
+
+    await expect(async () => {
+      return Filesystem.isSocket('./not-existing.file')
+    }).rejects.toThrow()
+  })
+
+  it('isSymLink', async () => {
+    const file = await ensureTempFile()
+    const link = Path.resolve(tempDir, 'links/isSymLink.txt')
+    await Filesystem.ensureSymlink(file, link)
+
+    expect(await Filesystem.isSymLink(link)).toBe(true)
+    expect(await Filesystem.isSymLink(file)).toBe(false)
   })
 })

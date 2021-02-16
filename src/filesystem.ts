@@ -11,15 +11,39 @@ import Fs, { Stats, SymlinkType, CopyOptions, WriteFileOptions, MoveOptions } fr
 
 export class Filesystem {
   /**
-   * Retrieve information about the given file. Use `access`
-   * to check whether the `file` exists instead of `stat`.
+   * Retrieve information about the given file.
    *
-   * @param {String} file
+   * @param {String} path
    *
    * @returns {Stats}
    */
-  static async stat (file: string): Promise<Stats> {
-    return await Fs.stat(file)
+  static async stat (path: string): Promise<Stats> {
+    return await Fs.stat(path)
+  }
+
+  /**
+   * Retrieve information about the given file. `lstat` is identical to `stat`,
+   * except that if `file` is a symbolic link, then the link itself is
+   * stat-ed, not the file that it refers to.
+   *
+   * @param {String} path
+   *
+   * @returns {Stats}
+   */
+  static async lstat (path: string): Promise<Stats> {
+    return await Fs.lstat(path)
+  }
+
+  /**
+   * Retrieve information about the given file. `lstat` is identical to `stat`, except
+   * that the file to be stat-ed is specified by the file descriptor `fd`.
+   *
+   * @param {Number} fileDescriptor
+   *
+   * @returns {Stats}
+   */
+  static async fstat (fileDescriptor: number): Promise<Stats> {
+    return await Fs.fstat(fileDescriptor)
   }
 
   /**
@@ -513,7 +537,7 @@ export class Filesystem {
   }
 
   /**
-   * Determine whether a file exists at the given `path`.
+   * Determine whether the given `path` is a file.
    *
    * @param {String} path
    *
@@ -526,7 +550,7 @@ export class Filesystem {
   }
 
   /**
-   * Determine whether a directory exists at the given `path`.
+   * Determine whether the given `path` is a directory.
    *
    * @param {String} path
    *
@@ -535,6 +559,32 @@ export class Filesystem {
   static async isDirectory (path: string): Promise<boolean> {
     return upon(await this.stat(path), (stats: Stats) => {
       return stats.isDirectory()
+    })
+  }
+
+  /**
+   * Determine whether a the given `path` is a socket.
+   *
+   * @param {String} path
+   *
+   * @returns {Boolean}
+   */
+  static async isSocket (path: string): Promise<boolean> {
+    return upon(await this.stat(path), (stats: Stats) => {
+      return stats.isSocket()
+    })
+  }
+
+  /**
+   * Determine whether a the given `path` is a symbolic link.
+   *
+   * @param {String} path
+   *
+   * @returns {Boolean}
+   */
+  static async isSymLink (path: string): Promise<boolean> {
+    return upon(await this.lstat(path), (stats: Stats) => {
+      return stats.isSymbolicLink()
     })
   }
 
