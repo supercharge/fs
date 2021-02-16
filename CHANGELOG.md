@@ -1,6 +1,15 @@
 # Changelog
 
 
+## [2.4.0](https://github.com/supercharge/filesystem/compare/v2.2.1...v2.3.0) - 2021-02-xx
+
+### Added
+- `lstat(path)` method: retrieve file system details about the given `path` (used for symbolic links)
+- `fstat(path)` method: retrieve file system details about the given `path` (used for file descriptors)
+- `isSocket(path)` method: determine whether the given `path` is a socket
+- `isSymLink(path)` method: determine whether the given `path` is a symbolic link
+
+
 ## [2.3.0](https://github.com/supercharge/filesystem/compare/v2.2.1...v2.3.0) - 2021-02-14
 
 ### Added
