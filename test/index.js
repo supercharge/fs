@@ -180,18 +180,15 @@ describe('Filesystem', () => {
     const file = await ensureTempFile()
     await Filesystem.remove(file)
 
-    expect(
-      await Filesystem.exists(file)
-    ).toBe(false)
+    expect(await Filesystem.notExists(file)).toBe(true)
   })
 
   it('removeFile', async () => {
     const file = await ensureTempFile()
     await Filesystem.removeFile(file)
 
-    expect(
-      await Filesystem.exists(file)
-    ).toBe(false)
+    expect(await Filesystem.notExists(file)).toBe(true)
+    expect(await Filesystem.removeFile(file)).toBeUndefined()
   })
 
   it('copy', async () => {
