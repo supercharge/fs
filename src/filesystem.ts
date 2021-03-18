@@ -239,7 +239,7 @@ export class Filesystem {
    *
    * @param  {String} path
    * @param  {String} content
-   * @param  {Object} options
+   * @param  {WriteFileOptions} options
    */
   static async writeFile (file: string, content: string, options: WriteFileOptions): Promise<void> {
     return await Fs.outputFile(file, content, options)
