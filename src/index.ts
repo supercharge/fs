@@ -1,5 +1,5 @@
 'use strict'
 
-import { Filesystem } from './filesystem'
+import Filesystem from './filesystem'
 
 export = Filesystem

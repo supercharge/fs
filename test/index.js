@@ -3,7 +3,7 @@
 const Fs = require('fs')
 const Path = require('path')
 const Crypto = require('crypto')
-const Filesystem = require('..')
+const Filesystem = require('../dist')
 const { tap } = require('@supercharge/goodies')
 
 const tempDir = Path.resolve(__dirname, 'tmp')
@@ -376,7 +376,7 @@ describe('Filesystem', () => {
     const file = await ensureTempFile(filename)
 
     expect(
-      await Filesystem.basename(Path.resolve(__dirname, file))
+      Filesystem.basename(Path.resolve(__dirname, file))
     ).toEqual(filename)
   })
 
@@ -385,7 +385,7 @@ describe('Filesystem', () => {
     const file = await ensureTempFile(filename)
 
     expect(
-      await Filesystem.filename(Path.resolve(__dirname, file))
+      Filesystem.filename(Path.resolve(__dirname, file))
     ).toEqual(filename)
   })
 
@@ -393,7 +393,7 @@ describe('Filesystem', () => {
     const file = await ensureTempFile()
 
     expect(
-      await Filesystem.dirname(Path.resolve(__dirname, file))
+      Filesystem.dirname(Path.resolve(__dirname, file))
     ).toEqual(Path.parse(file).dir)
   })
 
