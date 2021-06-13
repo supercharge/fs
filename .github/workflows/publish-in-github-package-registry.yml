@@ -1,10 +1,6 @@
 name: Publish in GitHub Package Registry
 
-on:
-  pull_request:
-  push:
-    tags:
-      - '*'
+on: [push, pull_request]
 
 jobs:
   build:
