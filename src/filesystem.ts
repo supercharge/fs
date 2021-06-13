@@ -2,7 +2,6 @@
 
 import Os from 'os'
 import Path from 'path'
-import { AppendOptions } from '../types'
 import ReadRecursive from 'recursive-readdir'
 import { randomString, isDate } from './helper'
 import { tap, upon } from '@supercharge/goodies'
@@ -480,4 +479,10 @@ export default {
   async append (file: string | Buffer | number, content: string | Buffer, options?: AppendOptions): Promise<void> {
     await this.appendFile(file, content, options)
   }
+}
+
+export interface AppendOptions {
+  encoding?: string
+  mode?: number | string
+  flag?: string
 }
