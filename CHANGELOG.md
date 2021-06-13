@@ -1,13 +1,30 @@
 # Changelog
 
-
-## [2.4.0](https://github.com/supercharge/filesystem/compare/v2.2.1...v2.3.0) - 2021-02-xx
+## [3.0.0](https://github.com/supercharge/filesystem/compare/v2.3.0...v3.0.0) - 2021-06-xx
 
 ### Added
 - `lstat(path)` method: retrieve file system details about the given `path` (used for symbolic links)
 - `fstat(path)` method: retrieve file system details about the given `path` (used for file descriptors)
 - `isSocket(path)` method: determine whether the given `path` is a socket
 - `isSymLink(path)` method: determine whether the given `path` is a symbolic link
+
+### Updated
+- bump dependencies
+  - updated to `fs-extra` 10.x
+- moving the code base from being a class to export an object
+  - allows destructured imports for individual methods
+  ```js
+  // before
+  import Fs from '@supercharge/filesystem'
+  Fs.copy(src, dest)
+
+  // now
+  import { copy } from '@supercharge/filesystem'
+  copy(src, dest)
+  ```
+
+### Breaking Changes
+- requires Node.js v12 or later (v10 before)
 
 
 ## [2.3.0](https://github.com/supercharge/filesystem/compare/v2.2.1...v2.3.0) - 2021-02-14
