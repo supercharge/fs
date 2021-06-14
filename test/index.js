@@ -85,7 +85,11 @@ describe('Filesystem', () => {
     const file = await ensureTempFile()
 
     expect(
-      await Filesystem.canAccess(file, Fs.constants.W_OK)
+      await Filesystem.canAccess(file)
+    ).toBe(true)
+
+    expect(
+      await Filesystem.canAccess(file, Filesystem.constants.W_OK)
     ).toBe(true)
   })
 
@@ -259,24 +263,24 @@ describe('Filesystem', () => {
     const file1 = await ensureTempFile()
     await Filesystem.chmod(file1, '400') // read-only
 
-    expect(await Filesystem.canAccess(file1, Fs.constants.W_OK)).toBe(false)
+    expect(await Filesystem.canAccess(file1, Filesystem.constants.W_OK)).toBe(false)
 
     const file2 = await ensureTempFile()
     await Filesystem.chmod(file2, '600') // read-write
 
-    expect(await Filesystem.canAccess(file2, Fs.constants.W_OK)).toBe(true)
+    expect(await Filesystem.canAccess(file2, Filesystem.constants.W_OK)).toBe(true)
   })
 
   it('chmodAsInteger', async () => {
     const file1 = await ensureTempFile()
     await Filesystem.chmod(file1, 400) // read-only
 
-    expect(await Filesystem.canAccess(file1, Fs.constants.W_OK)).toBe(false)
+    expect(await Filesystem.canAccess(file1, Filesystem.constants.W_OK)).toBe(false)
 
     const file2 = await ensureTempFile()
     await Filesystem.chmod(file2, 600) // read-write
 
-    expect(await Filesystem.canAccess(file2, Fs.constants.W_OK)).toBe(true)
+    expect(await Filesystem.canAccess(file2, Filesystem.constants.W_OK)).toBe(true)
   })
 
   it('ensureLink', async () => {
