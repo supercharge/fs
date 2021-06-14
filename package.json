@@ -1,10 +1,10 @@
 {
-  "name": "@supercharge/filesystem",
+  "name": "@supercharge/fs",
   "description": "Async filesystem methods for Node.js",
   "version": "2.3.0",
   "author": "Marcus Pöhls <marcus@superchargejs.com>",
   "bugs": {
-    "url": "https://github.com/supercharge/filesystem/issues"
+    "url": "https://github.com/supercharge/fs/issues"
   },
   "dependencies": {
     "@supercharge/goodies": "~1.9.0",
@@ -37,7 +37,7 @@
   ],
   "main": "dist",
   "types": "dist",
-  "homepage": "https://github.com/supercharge/filesystem",
+  "homepage": "https://github.com/supercharge/fs",
   "keywords": [
     "nodejs",
     "filesystem",
@@ -51,7 +51,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/supercharge/filesystem.git"
+    "url": "git+https://github.com/supercharge/fs.git"
   },
   "scripts": {
     "build": "tsc",
