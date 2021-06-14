@@ -1,6 +1,6 @@
 # Changelog
 
-## [3.0.0](https://github.com/supercharge/fs/compare/v2.3.0...v3.0.0) - 2021-06-xx
+## [3.0.0](https://github.com/supercharge/fs/compare/v2.3.0...v3.0.0) - 2021-06-14
 
 ### Added
 - `lstat(path)` method: retrieve file system details about the given `path` (used for symbolic links)
