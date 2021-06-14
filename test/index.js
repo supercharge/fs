@@ -525,4 +525,12 @@ describe('Filesystem', () => {
     expect(await Filesystem.isSymLink(link)).toBe(true)
     expect(await Filesystem.isSymLink(file)).toBe(false)
   })
+
+  it('ensure stream methods', async () => {
+    expect(Filesystem.ReadStream).not.toBe(undefined)
+    expect(Filesystem.WriteStream).not.toBe(undefined)
+
+    expect(typeof Filesystem.createReadStream).toBe('function')
+    expect(typeof Filesystem.createWriteStream).toBe('function')
+  })
 })
