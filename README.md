@@ -5,10 +5,10 @@
   <br/>
   <br/>
   <p>
-    <h3>Filesystem</h3>
+    <h3>Fs</h3>
   </p>
   <p>
-    Async filesystem methods for Node.js
+    Extended and async `fs` package for Node.js
   </p>
   <br/>
   <p>
