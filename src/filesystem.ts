@@ -8,9 +8,7 @@ import { tap, upon } from '@supercharge/goodies'
 import Fs, { Stats, SymlinkType, WriteFileOptions } from 'fs-extra'
 import Lockfile, { LockOptions, UnlockOptions, CheckOptions } from 'proper-lockfile'
 
-export default {
-  ...Fs,
-
+export default Object.assign({}, Fs, {
   /**
    * Returns the file size in bytes of the file located at `path`.
    *
@@ -19,7 +17,7 @@ export default {
    * @returns {Integer}
    */
   async size (path: string): Promise<number> {
-    return upon(await this.stat(path), (stat: Stats) => {
+    return upon(await Fs.stat(path), (stat: Stats) => {
       return stat.size
     })
   },
@@ -32,7 +30,7 @@ export default {
    * @returns {Date}
    */
   async lastModified (file: string): Promise<Date> {
-    return upon(await this.stat(file), (stat: Stats) => {
+    return upon(await Fs.stat(file), (stat: Stats) => {
       return stat.mtime
     })
   },
@@ -45,7 +43,7 @@ export default {
    * @returns {Date}
    */
   async lastAccessed (file: string): Promise<Date> {
-    return upon(await this.stat(file), (stat: Stats) => {
+    return upon(await Fs.stat(file), (stat: Stats) => {
       return stat.atime
     })
   },
@@ -104,7 +102,7 @@ export default {
    * @returns {Boolean}
    */
   async exists (path: string): Promise<boolean> {
-    return await this.pathExists(path)
+    return await Fs.pathExists(path)
   },
 
   /**
@@ -125,7 +123,7 @@ export default {
    * @param {String} file
    */
   async touch (file: string): Promise<void> {
-    await this.ensureFile(file)
+    await Fs.ensureFile(file)
 
     const now = new Date()
     await this.updateTimestamps(file, now, now)
@@ -155,7 +153,7 @@ export default {
    * @returns {Array}
    */
   async files (path: string): Promise<string[]> {
-    return await this.readdir(path)
+    return await Fs.readdir(path)
   },
 
   /**
@@ -194,7 +192,7 @@ export default {
    * @param {String} file
    */
   async removeFile (file: string): Promise<void> {
-    return await this.remove(file)
+    return await Fs.remove(file)
   },
 
   /**
@@ -313,7 +311,7 @@ export default {
     const file = Path.resolve(await this.tempDir(), name ?? randomString())
 
     return await tap(file, async () => {
-      await this.ensureFile(file)
+      await Fs.ensureFile(file)
     })
   },
 
@@ -424,7 +422,7 @@ export default {
    * @returns {Boolean}
    */
   async isFile (path: string): Promise<boolean> {
-    return upon(await this.stat(path), (stats: Stats) => {
+    return upon(await Fs.stat(path), (stats: Stats) => {
       return stats.isFile()
     })
   },
@@ -437,7 +435,7 @@ export default {
    * @returns {Boolean}
    */
   async isDirectory (path: string): Promise<boolean> {
-    return upon(await this.stat(path), (stats: Stats) => {
+    return upon(await Fs.stat(path), (stats: Stats) => {
       return stats.isDirectory()
     })
   },
@@ -450,7 +448,7 @@ export default {
    * @returns {Boolean}
    */
   async isSocket (path: string): Promise<boolean> {
-    return upon(await this.stat(path), (stats: Stats) => {
+    return upon(await Fs.stat(path), (stats: Stats) => {
       return stats.isSocket()
     })
   },
@@ -463,7 +461,7 @@ export default {
    * @returns {Boolean}
    */
   async isSymLink (path: string): Promise<boolean> {
-    return upon(await this.lstat(path), (stats: Stats) => {
+    return upon(await Fs.lstat(path), (stats: Stats) => {
       return stats.isSymbolicLink()
     })
   },
@@ -477,9 +475,9 @@ export default {
    * @param {String|Object} options
    */
   async append (file: string | Buffer | number, content: string | Buffer, options?: AppendOptions): Promise<void> {
-    await this.appendFile(file, content, options)
+    await Fs.appendFile(file, content, options)
   }
-}
+})
 
 export interface AppendOptions {
   encoding?: string
