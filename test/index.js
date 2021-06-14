@@ -3,7 +3,7 @@
 const Fs = require('fs')
 const Path = require('path')
 const Crypto = require('crypto')
-const Filesystem = require('..')
+const Filesystem = require('../dist')
 const { tap } = require('@supercharge/goodies')
 
 const tempDir = Path.resolve(__dirname, 'tmp')
@@ -85,7 +85,11 @@ describe('Filesystem', () => {
     const file = await ensureTempFile()
 
     expect(
-      await Filesystem.canAccess(file, Fs.constants.W_OK)
+      await Filesystem.canAccess(file)
+    ).toBe(true)
+
+    expect(
+      await Filesystem.canAccess(file, Filesystem.constants.W_OK)
     ).toBe(true)
   })
 
@@ -259,24 +263,24 @@ describe('Filesystem', () => {
     const file1 = await ensureTempFile()
     await Filesystem.chmod(file1, '400') // read-only
 
-    expect(await Filesystem.canAccess(file1, Fs.constants.W_OK)).toBe(false)
+    expect(await Filesystem.canAccess(file1, Filesystem.constants.W_OK)).toBe(false)
 
     const file2 = await ensureTempFile()
     await Filesystem.chmod(file2, '600') // read-write
 
-    expect(await Filesystem.canAccess(file2, Fs.constants.W_OK)).toBe(true)
+    expect(await Filesystem.canAccess(file2, Filesystem.constants.W_OK)).toBe(true)
   })
 
   it('chmodAsInteger', async () => {
     const file1 = await ensureTempFile()
     await Filesystem.chmod(file1, 400) // read-only
 
-    expect(await Filesystem.canAccess(file1, Fs.constants.W_OK)).toBe(false)
+    expect(await Filesystem.canAccess(file1, Filesystem.constants.W_OK)).toBe(false)
 
     const file2 = await ensureTempFile()
     await Filesystem.chmod(file2, 600) // read-write
 
-    expect(await Filesystem.canAccess(file2, Fs.constants.W_OK)).toBe(true)
+    expect(await Filesystem.canAccess(file2, Filesystem.constants.W_OK)).toBe(true)
   })
 
   it('ensureLink', async () => {
@@ -376,7 +380,7 @@ describe('Filesystem', () => {
     const file = await ensureTempFile(filename)
 
     expect(
-      await Filesystem.basename(Path.resolve(__dirname, file))
+      Filesystem.basename(Path.resolve(__dirname, file))
     ).toEqual(filename)
   })
 
@@ -385,7 +389,7 @@ describe('Filesystem', () => {
     const file = await ensureTempFile(filename)
 
     expect(
-      await Filesystem.filename(Path.resolve(__dirname, file))
+      Filesystem.filename(Path.resolve(__dirname, file))
     ).toEqual(filename)
   })
 
@@ -393,7 +397,7 @@ describe('Filesystem', () => {
     const file = await ensureTempFile()
 
     expect(
-      await Filesystem.dirname(Path.resolve(__dirname, file))
+      Filesystem.dirname(Path.resolve(__dirname, file))
     ).toEqual(Path.parse(file).dir)
   })
 
@@ -520,5 +524,13 @@ describe('Filesystem', () => {
 
     expect(await Filesystem.isSymLink(link)).toBe(true)
     expect(await Filesystem.isSymLink(file)).toBe(false)
+  })
+
+  it('ensure stream methods', async () => {
+    expect(Filesystem.ReadStream).not.toBe(undefined)
+    expect(Filesystem.WriteStream).not.toBe(undefined)
+
+    expect(typeof Filesystem.createReadStream).toBe('function')
+    expect(typeof Filesystem.createWriteStream).toBe('function')
   })
 })

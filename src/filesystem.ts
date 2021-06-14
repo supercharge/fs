@@ -2,50 +2,13 @@
 
 import Os from 'os'
 import Path from 'path'
-import { AppendOptions } from '../types'
 import ReadRecursive from 'recursive-readdir'
 import { randomString, isDate } from './helper'
 import { tap, upon } from '@supercharge/goodies'
+import Fs, { Stats, SymlinkType, WriteFileOptions } from 'fs-extra'
 import Lockfile, { LockOptions, UnlockOptions, CheckOptions } from 'proper-lockfile'
-import Fs, { Stats, SymlinkType, CopyOptions, WriteFileOptions, MoveOptions } from 'fs-extra'
 
-export class Filesystem {
-  /**
-   * Retrieve information about the given file.
-   *
-   * @param {String} path
-   *
-   * @returns {Stats}
-   */
-  static async stat (path: string): Promise<Stats> {
-    return await Fs.stat(path)
-  }
-
-  /**
-   * Retrieve information about the given file. `lstat` is identical to `stat`,
-   * except that if `file` is a symbolic link, then the link itself is
-   * stat-ed, not the file that it refers to.
-   *
-   * @param {String} path
-   *
-   * @returns {Stats}
-   */
-  static async lstat (path: string): Promise<Stats> {
-    return await Fs.lstat(path)
-  }
-
-  /**
-   * Retrieve information about the given file. `lstat` is identical to `stat`, except
-   * that the file to be stat-ed is specified by the file descriptor `fd`.
-   *
-   * @param {Number} fileDescriptor
-   *
-   * @returns {Stats}
-   */
-  static async fstat (fileDescriptor: number): Promise<Stats> {
-    return await Fs.fstat(fileDescriptor)
-  }
-
+export default Object.assign({}, Fs, {
   /**
    * Returns the file size in bytes of the file located at `path`.
    *
@@ -53,11 +16,11 @@ export class Filesystem {
    *
    * @returns {Integer}
    */
-  static async size (path: string): Promise<number> {
-    return upon(await this.stat(path), (stat: Stats) => {
+  async size (path: string): Promise<number> {
+    return upon(await Fs.stat(path), (stat: Stats) => {
       return stat.size
     })
-  }
+  },
 
   /**
    * Retrieve the time when `file` was last modified.
@@ -66,11 +29,11 @@ export class Filesystem {
    *
    * @returns {Date}
    */
-  static async lastModified (file: string): Promise<Date> {
-    return upon(await this.stat(file), (stat: Stats) => {
+  async lastModified (file: string): Promise<Date> {
+    return upon(await Fs.stat(file), (stat: Stats) => {
       return stat.mtime
     })
-  }
+  },
 
   /**
    * Retrieve the time when `file` was last accessed.
@@ -79,11 +42,11 @@ export class Filesystem {
    *
    * @returns {Date}
    */
-  static async lastAccessed (file: string): Promise<Date> {
-    return upon(await this.stat(file), (stat: Stats) => {
+  async lastAccessed (file: string): Promise<Date> {
+    return upon(await Fs.stat(file), (stat: Stats) => {
       return stat.atime
     })
-  }
+  },
 
   /**
    * Change the file system timestamps of the
@@ -96,7 +59,7 @@ export class Filesystem {
    *
    * @throws
    */
-  static async updateTimestamps (path: string, lastAccessed: Date, lastModified: Date): Promise<void> {
+  async updateTimestamps (path: string, lastAccessed: Date, lastModified: Date): Promise<void> {
     if (!isDate(lastAccessed)) {
       throw new Error(`Updating the last accessed timestamp for ${path} requires an instance of "Date". Received ${typeof lastAccessed}`)
     }
@@ -106,7 +69,7 @@ export class Filesystem {
     }
 
     await Fs.utimes(path, lastAccessed, lastModified)
-  }
+  },
 
   /**
    * Test the user's permissions for the given `path` which can
@@ -120,7 +83,7 @@ export class Filesystem {
    *
    * @throws
    */
-  static async canAccess (path: string, mode: number = Fs.constants.F_OK): Promise<boolean> {
+  async canAccess (path: string, mode: number = Fs.constants.F_OK): Promise<boolean> {
     try {
       await Fs.access(path, mode)
 
@@ -128,18 +91,7 @@ export class Filesystem {
     } catch {
       return false
     }
-  }
-
-  /**
-   * Determine whether the given `path` exists on the file system.
-   *
-   * @param {String} path
-   *
-   * @returns {Boolean}
-   */
-  static async pathExists (path: string): Promise<boolean> {
-    return await Fs.pathExists(path)
-  }
+  },
 
   /**
    * Shortcut for `pathExists` determining whether a given file or
@@ -149,9 +101,9 @@ export class Filesystem {
    *
    * @returns {Boolean}
    */
-  static async exists (path: string): Promise<boolean> {
-    return await this.pathExists(path)
-  }
+  async exists (path: string): Promise<boolean> {
+    return await Fs.pathExists(path)
+  },
 
   /**
    * Determine wether the given `path` does not exists.
@@ -160,9 +112,9 @@ export class Filesystem {
    *
    * @returns {Boolean}
    */
-  static async notExists (path: string): Promise<boolean> {
+  async notExists (path: string): Promise<boolean> {
     return !await this.exists(path)
-  }
+  },
 
   /**
    * Updates the access and modification times of the given `file` current
@@ -170,23 +122,12 @@ export class Filesystem {
    *
    * @param {String} file
    */
-  static async touch (file: string): Promise<void> {
-    await this.ensureFile(file)
+  async touch (file: string): Promise<void> {
+    await Fs.ensureFile(file)
 
     const now = new Date()
     await this.updateTimestamps(file, now, now)
-  }
-
-  /**
-   * Ensure that the `file` exists. If the requested file and
-   * directories do not exist, they are created. If the file
-   * already exists, it is NOT modified.
-   *
-   * @param {String} file
-   */
-  static async ensureFile (file: string): Promise<void> {
-    await Fs.ensureFile(file)
-  }
+  },
 
   /**
    * Read the entire content of `file`. If no `encoding` is
@@ -198,9 +139,9 @@ export class Filesystem {
    *
    * @returns {String}
    */
-  static async readFile (file: string, encoding: string = 'utf8'): Promise<string> {
+  async readFile (file: string, encoding: string = 'utf8'): Promise<string> {
     return await Fs.readFile(file, encoding)
-  }
+  },
 
   /**
    * Read the contents of a directory with the given `path`.
@@ -211,9 +152,9 @@ export class Filesystem {
    *
    * @returns {Array}
    */
-  static async files (path: string): Promise<string[]> {
+  async files (path: string): Promise<string[]> {
     return await Fs.readdir(path)
-  }
+  },
 
   /**
    * Read the contents of the directory at the given `path`
@@ -225,13 +166,13 @@ export class Filesystem {
    *
    * @returns {Array}
    */
-  static async allFiles (path: string, options: any = {}): Promise<string[]> {
+  async allFiles (path: string, options: any = {}): Promise<string[]> {
     const { ignore } = options
 
     return ReadRecursive(
       path, ignore ? [].concat(ignore) : undefined
     )
-  }
+  },
 
   /**
    * Write the given `content` to the file` and create
@@ -239,59 +180,20 @@ export class Filesystem {
    *
    * @param  {String} path
    * @param  {String} content
-   * @param  {Object} options
+   * @param  {WriteFileOptions} options
    */
-  static async writeFile (file: string, content: string, options: WriteFileOptions): Promise<void> {
+  async writeFile (file: string, content: string, options: WriteFileOptions): Promise<void> {
     return await Fs.outputFile(file, content, options)
-  }
-
-  /**
-   * Removes a file or directory from the file system located at `path`.
-   *
-   * @param {String} path
-   */
-  static async remove (path: string): Promise<void> {
-    return await Fs.remove(path)
-  }
+  },
 
   /**
    * Removes a `file` from the file system.
    *
    * @param {String} file
    */
-  static async removeFile (file: string): Promise<void> {
-    return await this.remove(file)
-  }
-
-  /**
-   * Copy a file or directory from `src` to `dest`. The
-   * directory can have contents. Like `cp -r`. If
-   * `src` is a directory this method copies everything
-   * inside of `src`, not the entire directory itself.
-   *
-   * If `src` is a file, make sure that `dest` is a file
-   * as well (and not a directory).
-   *
-   * @param {String} src  - source path
-   * @param {String} dest - destination path
-   * @param {Object} options
-   */
-  static async copy (src: string, dest: string, options: CopyOptions): Promise<void> {
-    return await Fs.copy(src, dest, options)
-  }
-
-  /**
-   * Moves a file or directory from `src` to `dest`. By default,
-   * this method doesn't override existingfiles. You can
-   * override existing files using `{ override: true }`.
-   *
-   * @param {String} src  - source path
-   * @param {String} dest - destination path
-   * @param {Object} options
-   */
-  static async move (src: string, dest: string, options: MoveOptions = {}): Promise<void> {
-    return await Fs.move(src, dest, options)
-  }
+  async removeFile (file: string): Promise<void> {
+    return await Fs.remove(file)
+  },
 
   /**
    * Ensures that the directory exists. If the directory
@@ -302,11 +204,11 @@ export class Filesystem {
    *
    * @returns {String} dir - directory path
    */
-  static async ensureDir (dir: string): Promise<string> {
+  async ensureDir (dir: string): Promise<string> {
     return await tap(dir, async () => {
       await Fs.ensureDir(dir)
     })
-  }
+  },
 
   /**
    * Removes a `dir` from the file system.The directory
@@ -315,21 +217,9 @@ export class Filesystem {
    *
    * @param {String} dir - directory path
    */
-  static async removeDir (dir: string): Promise<void> {
+  async removeDir (dir: string): Promise<void> {
     return await Fs.remove(dir)
-  }
-
-  /**
-   * Ensures that a directory is empty. Deletes directory
-   * contents if the directory is not empty. If the
-   * directory does not exist, it is created.
-   * The directory itself is not deleted.
-   *
-   * @param {String} dir
-   */
-  static async emptyDir (dir: string): Promise<void> {
-    return await Fs.emptyDir(dir)
-  }
+  },
 
   /**
    * Changes the permissions of a `file`.
@@ -339,21 +229,9 @@ export class Filesystem {
    * @param {String} file
    * @param {String|Integer} mode
    */
-  static async chmod (file: string, mode: string): Promise<void> {
+  async chmod (file: string, mode: string): Promise<void> {
     return await Fs.chmod(file, parseInt(mode, 8))
-  }
-
-  /**
-   * Ensures that the link from source to
-   * destination exists. If the directory
-   * structure does not exist, it is created.
-   *
-   * @param {String} src
-   * @param {String} dest
-   */
-  static async ensureLink (src: string, dest: string): Promise<void> {
-    return await Fs.ensureLink(src, dest)
-  }
+  },
 
   /**
    * Ensures that the symlink from source to
@@ -364,9 +242,9 @@ export class Filesystem {
    * @param {String} dest
    * @param {String} type
    */
-  static async ensureSymlink (src: string, dest: string, type: SymlinkType = 'file'): Promise<void> {
+  async ensureSymlink (src: string, dest: string, type: SymlinkType = 'file'): Promise<void> {
     return await Fs.ensureSymlink(src, dest, type)
-  }
+  },
 
   /**
    * Acquire a file lock on the specified `file` path with the given `options`.
@@ -378,11 +256,11 @@ export class Filesystem {
    *
    * @returns {Function} release function
    */
-  static async lock (file: string, options?: LockOptions): Promise<void> {
+  async lock (file: string, options?: LockOptions): Promise<void> {
     if (await this.isNotLocked(file, options)) {
       await Lockfile.lock(file, options)
     }
-  }
+  },
 
   /**
    * Release an existent lock for the `file` and given `options`. If the `file`
@@ -390,11 +268,11 @@ export class Filesystem {
    *
    * @param {String} file
    */
-  static async unlock (file: string, options?: UnlockOptions): Promise<void> {
+  async unlock (file: string, options?: UnlockOptions): Promise<void> {
     if (await this.isLocked(file, options)) {
       await Lockfile.unlock(file, options)
     }
-  }
+  },
 
   /**
    * Check if the `file` is locked and not stale.
@@ -404,9 +282,9 @@ export class Filesystem {
    *
    * @returns {Boolean}
    */
-  static async isLocked (file: string, options?: CheckOptions): Promise<boolean> {
+  async isLocked (file: string, options?: CheckOptions): Promise<boolean> {
     return await Lockfile.check(file, options)
-  }
+  },
 
   /**
    * Check if the `file` is not locked and not stale.
@@ -416,9 +294,9 @@ export class Filesystem {
    *
    * @returns {Boolean}
    */
-  static async isNotLocked (file: string, options?: CheckOptions): Promise<boolean> {
+  async isNotLocked (file: string, options?: CheckOptions): Promise<boolean> {
     return !await this.isLocked(file, options)
-  }
+  },
 
   /**
    * Create a random temporary file path you can write to.
@@ -429,24 +307,24 @@ export class Filesystem {
    *
    * @returns {String}
    */
-  static async tempFile (name?: string): Promise<string> {
+  async tempFile (name?: string): Promise<string> {
     const file = Path.resolve(await this.tempDir(), name ?? randomString())
 
     return await tap(file, async () => {
-      await this.ensureFile(file)
+      await Fs.ensureFile(file)
     })
-  }
+  },
 
   /**
    * Create a temporary directory path which will be cleaned up by the operating system.
    *
    * @returns {String}
    */
-  static async tempDir (): Promise<string> {
+  async tempDir (): Promise<string> {
     return await this.ensureDir(
       await this.tempPath()
     )
-  }
+  },
 
   /**
    * Returns the path to the user’s home directory. You may pass a `path` to which
@@ -457,22 +335,22 @@ export class Filesystem {
    *
    * @returns {String}
    */
-  static async homeDir (path?: string): Promise<string> {
+  homeDir (path?: string): string {
     return path
       ? Path.resolve(Os.homedir(), path)
       : Os.homedir()
-  }
+  },
 
   /**
    * Generates a random, temporary path on the filesystem.
    *
    * @returns {String}
    */
-  static async tempPath (): Promise<string> {
+  async tempPath (): Promise<string> {
     return Path.resolve(
       await this.realPath(Os.tmpdir()), randomString()
     )
-  }
+  },
 
   /**
    * Returns the fully resolve, absolute file path to the given `path`.
@@ -483,9 +361,9 @@ export class Filesystem {
    *
    * @returns {String}
    */
-  static async realPath (path: string, cache?: { [path: string]: string }): Promise<string> {
+  async realPath (path: string, cache?: { [path: string]: string }): Promise<string> {
     return await Fs.realpath(path, cache)
-  }
+  },
 
   /**
    * Returns the extension of `file`. For example, returns `.html`
@@ -495,9 +373,9 @@ export class Filesystem {
    *
    * @returns {String}
    */
-  static async extension (file: string): Promise<string> {
+  extension (file: string): string {
     return Path.extname(file)
-  }
+  },
 
   /**
    * Returns the trailing name component from a file path. For example,
@@ -508,9 +386,9 @@ export class Filesystem {
    *
    * @returns {String}
    */
-  static async basename (path: string, extension: string): Promise<string> {
+  basename (path: string, extension: string): string {
     return Path.basename(path, extension)
-  }
+  },
 
   /**
    * Returns the file name without extension.
@@ -519,9 +397,9 @@ export class Filesystem {
    *
    * @returns {String}
    */
-  static async filename (file: string): Promise<string> {
+  filename (file: string): string {
     return Path.parse(file).name
-  }
+  },
 
   /**
    * Returns the directory name of the given `path`.
@@ -532,9 +410,9 @@ export class Filesystem {
    *
    * @returns {String}
    */
-  static async dirname (path: string): Promise<string> {
+  dirname (path: string): string {
     return Path.dirname(path)
-  }
+  },
 
   /**
    * Determine whether the given `path` is a file.
@@ -543,11 +421,11 @@ export class Filesystem {
    *
    * @returns {Boolean}
    */
-  static async isFile (path: string): Promise<boolean> {
-    return upon(await this.stat(path), (stats: Stats) => {
+  async isFile (path: string): Promise<boolean> {
+    return upon(await Fs.stat(path), (stats: Stats) => {
       return stats.isFile()
     })
-  }
+  },
 
   /**
    * Determine whether the given `path` is a directory.
@@ -556,11 +434,11 @@ export class Filesystem {
    *
    * @returns {Boolean}
    */
-  static async isDirectory (path: string): Promise<boolean> {
-    return upon(await this.stat(path), (stats: Stats) => {
+  async isDirectory (path: string): Promise<boolean> {
+    return upon(await Fs.stat(path), (stats: Stats) => {
       return stats.isDirectory()
     })
-  }
+  },
 
   /**
    * Determine whether a the given `path` is a socket.
@@ -569,11 +447,11 @@ export class Filesystem {
    *
    * @returns {Boolean}
    */
-  static async isSocket (path: string): Promise<boolean> {
-    return upon(await this.stat(path), (stats: Stats) => {
+  async isSocket (path: string): Promise<boolean> {
+    return upon(await Fs.stat(path), (stats: Stats) => {
       return stats.isSocket()
     })
-  }
+  },
 
   /**
    * Determine whether a the given `path` is a symbolic link.
@@ -582,11 +460,11 @@ export class Filesystem {
    *
    * @returns {Boolean}
    */
-  static async isSymLink (path: string): Promise<boolean> {
-    return upon(await this.lstat(path), (stats: Stats) => {
+  async isSymLink (path: string): Promise<boolean> {
+    return upon(await Fs.lstat(path), (stats: Stats) => {
       return stats.isSymbolicLink()
     })
-  }
+  },
 
   /**
    * Append the given `content` to a `file`. This method
@@ -596,19 +474,13 @@ export class Filesystem {
    * @param {String|Buffer} content
    * @param {String|Object} options
    */
-  static async append (file: string | Buffer | number, content: string | Buffer, options?: AppendOptions): Promise<void> {
+  async append (file: string | Buffer | number, content: string | Buffer, options?: AppendOptions): Promise<void> {
     await Fs.appendFile(file, content, options)
   }
+})
 
-  /**
-   * Rename a file located at `src` to the pathname defined by `dest`.
-   * Both, `src` and `dest` must be file paths. If a file already
-   * exists at the `dest` location, it will be overwritten.
-   *
-   * @param {String} src
-   * @param {String} dest
-   */
-  static async rename (src: string, dest: string): Promise<void> {
-    await Fs.rename(src, dest)
-  }
+export interface AppendOptions {
+  encoding?: string
+  mode?: number | string
+  flag?: string
 }
