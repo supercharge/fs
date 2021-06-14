@@ -9,22 +9,27 @@
 - `isSymLink(path)` method: determine whether the given `path` is a symbolic link
 
 ### Updated
+- export all methods from `fs-extra`: previously a subset of methods was exposed. Stream-related methods were not available. That changes with this release where all methods from `fs-extra` are exposed. On top of that, we add some helpful defaults to some methods, e.g. `readFile` returns the content as string in this package)
 - bump dependencies
   - updated to `fs-extra` 10.x
 - moving the code base from being a class to export an object
   - allows destructured imports for individual methods
   ```js
   // before
-  import Fs from '@supercharge/filesystem'
+  import Fs from '@supercharge/fs'
   Fs.copy(src, dest)
 
   // now
-  import { copy } from '@supercharge/filesystem'
+  import { copy } from '@supercharge/fs'
   copy(src, dest)
   ```
 
 ### Breaking Changes
 - requires Node.js v12 or later (v10 before)
+- renamed this package from `@supercharge/filesystem` to `@supercharge/fs`
+  - `@supercharge/filesystem` is now deprecated in favor of `@supercharge/fs`
+  - starting from 3.0.0: use `@supercharge/fs`
+  - until version 2.3.0: use `@supercharge/filesystem`
 
 
 ## [2.3.0](https://github.com/supercharge/filesystem/compare/v2.2.1...v2.3.0) - 2021-02-14
