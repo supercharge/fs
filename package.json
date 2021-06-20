@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@supercharge/goodies": "~1.9.0",
-    "@types/fs-extra": "^9.0.11",
+    "@types/fs-extra": "~9.0.11",
     "@types/proper-lockfile": "~4.1.1",
     "@types/recursive-readdir": "~2.2.0",
     "fs-extra": "~10.0.0",
