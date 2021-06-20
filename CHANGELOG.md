@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.0](https://github.com/supercharge/fs/compare/v3.0.0...v3.0.1) - 2021-06-20
+
+### Updated
+- moved `@types/fs-extra` from devDependencies to dependencies fixing missing tpying issues in Typescript
+
+
 ## [3.0.0](https://github.com/supercharge/fs/compare/v2.3.0...v3.0.0) - 2021-06-14
 
 ### Added
