@@ -127,8 +127,19 @@ describe('Filesystem', () => {
     const file = await ensureTempFile()
     Fs.writeFileSync(file, 'Hello Supercharge', 'utf8')
 
+    expect(await Filesystem.readFile(file, 'utf8')).toEqual('Hello Supercharge')
+
+    const log = jest.spyOn(console, 'log').mockImplementation(() => {})
+    expect(await Filesystem.readFile(file)).toEqual('Hello Supercharge')
+    expect(log).toBeCalled()
+  })
+
+  it('content', async () => {
+    const file = await ensureTempFile()
+    Fs.writeFileSync(file, 'Hello Supercharge', 'utf8')
+
     expect(
-      await Filesystem.readFile(file)
+      await Filesystem.content(file)
     ).toEqual('Hello Supercharge')
   })
 
@@ -176,7 +187,7 @@ describe('Filesystem', () => {
     await Filesystem.writeFile(file, 'Hello Supercharge')
 
     expect(
-      await Filesystem.readFile(file)
+      await Filesystem.content(file)
     ).toEqual('Hello Supercharge')
   })
 
@@ -440,9 +451,9 @@ describe('Filesystem', () => {
   it('append', async () => {
     const file = await ensureTempFile()
 
-    expect(await Filesystem.readFile(file)).toEqual('')
+    expect(await Filesystem.content(file)).toEqual('')
     await Filesystem.append(file, 'Appended content')
-    expect(await Filesystem.readFile(file)).toEqual('Appended content')
+    expect(await Filesystem.content(file)).toEqual('Appended content')
 
     // creates file if not existent
     const newFile = await createFilePath()
