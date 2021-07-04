@@ -1,6 +1,17 @@
 # Changelog
 
-## [3.0.0](https://github.com/supercharge/fs/compare/v3.0.0...v3.0.1) - 2021-06-20
+## [3.0.0](https://github.com/supercharge/fs/compare/v3.0.1...v3.1.0) - 2021-07-04
+
+### Added
+- `content(file)` method: reads the content of the given `file` and returns it as a string
+
+### Updated
+- bump dependencies
+- `readFile(file)` is deprecated
+  - use `Fs.content(file)` or `Fs.readFile(file, 'utf8)` instead. You’ll receive a deprecation message when using this method without specifying the `enconding` as the second argument
+
+
+## [3.0.1](https://github.com/supercharge/fs/compare/v3.0.0...v3.0.1) - 2021-06-20
 
 ### Updated
 - moved `@types/fs-extra` from devDependencies to dependencies fixing missing tpying issues in Typescript
