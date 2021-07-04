@@ -139,8 +139,23 @@ export default Object.assign({}, Fs, {
    *
    * @returns {String}
    */
-  async readFile (file: string, encoding: string = 'utf8'): Promise<string> {
-    return await Fs.readFile(file, encoding)
+  async readFile (file: string, encoding?: string): Promise<string> {
+    if (encoding === undefined) {
+      console.log('"Fs.readFile(file)" to retrieve the file’s content as string is deprecated. Use "Fs.content(file)" instead.')
+    }
+
+    return await Fs.readFile(file, encoding ?? 'utf8')
+  },
+
+  /**
+   * Returns the content of the given `file` as a string.
+   *
+   * @param {String} file
+   *
+   * @returns {String}
+   */
+  async content (file: string): Promise<string> {
+    return await Fs.readFile(file, 'utf8')
   },
 
   /**
