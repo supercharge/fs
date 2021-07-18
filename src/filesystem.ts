@@ -159,9 +159,9 @@ export default Object.assign({}, Fs, {
   },
 
   /**
-   * Read the contents of a directory with the given `path`.
-   * Returns an array of the names of the files in the
-   * directory excluding `.` and `..`.
+   * Returns an array of file names containing the files that are available
+   * in the given directory `path`. This method excludes the paths `.` and
+   * `..` and does not read files recursively in available subdirectories.
    *
    * @param {String} path
    *
