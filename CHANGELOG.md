@@ -1,6 +1,16 @@
 # Changelog
 
-## [3.0.0](https://github.com/supercharge/fs/compare/v3.0.1...v3.1.0) - 2021-07-04
+## [3.2.0](https://github.com/supercharge/fs/compare/v3.1.0...v3.2.0) - 2021-07-20
+
+### Added
+- type definitions for the `options` object in `allFiles(path, options`
+
+### Updated
+- bump dependencies
+- refined doc blocks for the `files` and `allFiles` methods
+
+
+## [3.1.0](https://github.com/supercharge/fs/compare/v3.0.1...v3.1.0) - 2021-07-04
 
 ### Added
 - `content(file)` method: reads the content of the given `file` and returns it as a string
