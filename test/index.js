@@ -180,6 +180,16 @@ describe('Filesystem', () => {
       Path.resolve(dirPath, 'test.txt'),
       Path.resolve(subDirPath, 'sub.txt')
     ])
+
+    expect(
+      await Filesystem.allFiles(dirPath, {
+        ignore (file, stats) {
+          return stats.isDirectory() || file.includes('helper')
+        }
+      })
+    ).toEqual([
+      Path.resolve(dirPath, 'test.txt')
+    ])
   })
 
   it('writeFile', async () => {

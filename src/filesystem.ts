@@ -172,21 +172,18 @@ export default Object.assign({}, Fs, {
   },
 
   /**
-   * Read the contents of the directory at the given `path`
-   * recursively. Returns an array of file names
-   * excluding `.`, `..`, and dotfiles.
+   * Returns an array of file names of all files, even recursive files in the given
+   * directory `path`.  This method excludes the paths `.`, `..`, and dotfiles.
    *
    * @param {String} path
-   * @param {Object} options config object - supports the `ignore` property: list of ignored files
+   * @param {ReadFileOptions} options
    *
    * @returns {Array}
    */
-  async allFiles (path: string, options: any = {}): Promise<string[]> {
-    const { ignore } = options
+  async allFiles (path: string, options?: ReadFileOptions): Promise<string[]> {
+    const { ignore } = options ?? {}
 
-    return ReadRecursive(
-      path, ignore ? [].concat(ignore) : undefined
-    )
+    return await ReadRecursive(path, ([] as any[]).concat(ignore ?? []))
   },
 
   /**
@@ -498,4 +495,9 @@ export interface AppendOptions {
   encoding?: string
   mode?: number | string
   flag?: string
+}
+
+export type IgnoreFileCallback = (file: string, stats: Fs.Stats) => boolean
+export interface ReadFileOptions {
+  ignore: string | string[] | IgnoreFileCallback | IgnoreFileCallback[]
 }
