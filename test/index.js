@@ -462,14 +462,31 @@ describe('Filesystem', () => {
     const file = await ensureTempFile()
 
     expect(await Filesystem.content(file)).toEqual('')
-    await Filesystem.append(file, 'Appended content')
-    expect(await Filesystem.content(file)).toEqual('Appended content')
+    await Filesystem.append(file, 'Headline')
+    await Filesystem.append(file, 'content')
+    expect(await Filesystem.content(file)).toEqual('Headlinecontent')
 
     // creates file if not existent
     const newFile = await createFilePath()
 
     expect(await Filesystem.notExists(newFile)).toBe(true)
     await Filesystem.append(newFile, 'new file')
+    expect(await Filesystem.exists(newFile)).toBe(true)
+  })
+
+  it('appendLine', async () => {
+    const file = await ensureTempFile()
+
+    expect(await Filesystem.content(file)).toEqual('')
+    await Filesystem.append(file, 'Headline')
+    await Filesystem.appendLine(file, 'text')
+    expect(await Filesystem.content(file)).toEqual('Headline\ntext')
+
+    // creates file if not existent
+    const newFile = await createFilePath()
+
+    expect(await Filesystem.notExists(newFile)).toBe(true)
+    await Filesystem.appendLine(newFile, 'new file')
     expect(await Filesystem.exists(newFile)).toBe(true)
   })
 

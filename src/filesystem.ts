@@ -5,7 +5,7 @@ import Path from 'path'
 import ReadRecursive from 'recursive-readdir'
 import { randomString, isDate } from './helper'
 import { tap, upon } from '@supercharge/goodies'
-import Fs, { Stats, SymlinkType, WriteFileOptions } from 'fs-extra'
+import Fs, { PathLike, Stats, SymlinkType, WriteFileOptions } from 'fs-extra'
 import Lockfile, { LockOptions, UnlockOptions, CheckOptions } from 'proper-lockfile'
 
 export default Object.assign({}, Fs, {
@@ -468,7 +468,7 @@ export default Object.assign({}, Fs, {
   /**
    * Determine whether a the given `path` is a symbolic link.
    *
-   * @param {String} path
+   * @param {PathLike} path
    *
    * @returns {Boolean}
    */
@@ -482,12 +482,25 @@ export default Object.assign({}, Fs, {
    * Append the given `content` to a `file`. This method
    * creates the `file` if it does not exist yet.
    *
-   * @param {String|Buffer} file
+   * @param {PathLike} file
    * @param {String|Buffer} content
    * @param {String|Object} options
    */
-  async append (file: string | Buffer | number, content: string | Buffer, options?: AppendOptions): Promise<void> {
+  async append (file: PathLike | number, content: string | Buffer, options?: AppendOptions): Promise<void> {
     await Fs.appendFile(file, content, options)
+  },
+
+  /**
+   * Append the given `content` in a new line to the given `file`.
+   * This method creates the `file` if it does not exist yet.
+   *
+   * @param {PathLike} file
+   * @param {String|Buffer} content
+   * @param {String|Object} options
+   */
+  async appendLine (file: PathLike | number, content: string | Buffer, options?: AppendOptions): Promise<void> {
+    await this.append(file, Os.EOL, options)
+    await this.append(file, content, options)
   }
 })
 
