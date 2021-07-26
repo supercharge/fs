@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.3.0](https://github.com/supercharge/fs/compare/v3.2.0...v3.3.0) - 2021-07-26
+
+### Added
+- `appendLine(file, content, options)` method: append the given `content` in a new line to the `file`
+
+### Updated
+- use `PathLike` type for the file parameter in the `append(file, content, options)` and `appendLine(file, content, options)` methods
+
+
 ## [3.2.0](https://github.com/supercharge/fs/compare/v3.1.0...v3.2.0) - 2021-07-20
 
 ### Added
