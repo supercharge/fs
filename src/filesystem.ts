@@ -501,6 +501,27 @@ export default Object.assign({}, Fs, {
   async appendLine (file: PathLike | number, content: string | Buffer, options?: AppendOptions): Promise<void> {
     await this.append(file, Os.EOL, options)
     await this.append(file, content, options)
+  },
+
+  /**
+   * Determine whether the given `path` points to an empty directory. In comparison to the
+   * `Fs.emptyDir(path)` method, this `Fs.isEmptyDir(path)` method doesn’t load all files
+   * into memory. It opens the folder as a stream and checks if at least one file exists.
+   *
+   * @param {String} path
+   *
+   * @returns {Boolean}
+   */
+  async isEmptyDir (path: string): Promise<boolean> {
+    try {
+      const dirent = await Fs.opendir(path)
+      const value = await dirent.read()
+      await dirent.close()
+
+      return value === null
+    } catch (error) {
+      return false
+    }
   }
 })
 

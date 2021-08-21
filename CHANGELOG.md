@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.4.0](https://github.com/supercharge/fs/compare/v3.3.0...v3.4.0) - 2021-08-21
+
+### Added
+- `isEmptyDir(path)` method: determine whether the given `path` points to an empty directory
+  - in comparison to the `Fs.emptyDir(path)` method, this `Fs.isEmptyDir(path)` method doesn’t load all files into memory. It opens the folder as a stream and checks if at least one file exists
+
+### Updated
+- bump dependencies
+
+
 ## [3.3.0](https://github.com/supercharge/fs/compare/v3.2.0...v3.3.0) - 2021-07-26
 
 ### Added

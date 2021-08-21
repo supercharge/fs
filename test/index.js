@@ -12,7 +12,7 @@ function randomName () {
   return Crypto.randomBytes(256).slice(0, 16).toString('hex')
 }
 
-async function createFilePath (file = `${randomName()}.txt`) {
+function createFilePath (file = `${randomName()}.txt`) {
   return Path.resolve(tempDir, file)
 }
 
@@ -118,7 +118,7 @@ describe('Filesystem', () => {
   })
 
   it('ensureFile', async () => {
-    const file = await createFilePath()
+    const file = createFilePath()
     await Filesystem.ensureFile(file)
     expect(Fs.existsSync(file)).toBe(true)
   })
@@ -278,6 +278,20 @@ describe('Filesystem', () => {
     expect(
       await Filesystem.files(dir)
     ).toEqual([])
+  })
+
+  it('isEmptyDir', async () => {
+    const dir = Path.resolve(tempDir, 'empty-directory')
+    await Filesystem.ensureDir(dir)
+    expect(await Filesystem.isEmptyDir(dir)).toBe(true)
+
+    const file = Path.resolve(dir, 'test.txt')
+    await Filesystem.ensureFile(file)
+    expect(await Filesystem.isEmptyDir(dir)).toBe(false)
+    expect(await Filesystem.files(dir)).toEqual(['test.txt'])
+
+    const nonExistingDir = Path.resolve(createFilePath(), 'not-existent-directory')
+    expect(await Filesystem.isEmptyDir(nonExistingDir)).toBe(false)
   })
 
   it('chmodAsString', async () => {
@@ -467,7 +481,7 @@ describe('Filesystem', () => {
     expect(await Filesystem.content(file)).toEqual('Headlinecontent')
 
     // creates file if not existent
-    const newFile = await createFilePath()
+    const newFile = createFilePath()
 
     expect(await Filesystem.notExists(newFile)).toBe(true)
     await Filesystem.append(newFile, 'new file')
@@ -483,7 +497,7 @@ describe('Filesystem', () => {
     expect(await Filesystem.content(file)).toEqual('Headline\ntext')
 
     // creates file if not existent
-    const newFile = await createFilePath()
+    const newFile = createFilePath()
 
     expect(await Filesystem.notExists(newFile)).toBe(true)
     await Filesystem.appendLine(newFile, 'new file')
@@ -522,7 +536,7 @@ describe('Filesystem', () => {
   })
 
   it('touch', async () => {
-    const file = await createFilePath()
+    const file = createFilePath()
 
     await Filesystem.touch(file)
     expect(await Filesystem.exists(file)).toBe(true)
