@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.5.0](https://github.com/supercharge/fs/compare/v3.4.0...v3.5.0) - 2021-xx-xx
+
+### Updated
+- bump dependencies
+- refined tests to use a controlled, local socket
+
+
 ## [3.4.0](https://github.com/supercharge/fs/compare/v3.3.0...v3.4.0) - 2021-08-21
 
 ### Added
