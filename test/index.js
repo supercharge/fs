@@ -1,6 +1,7 @@
 'use strict'
 
 const Fs = require('fs')
+const Net = require('net')
 const Path = require('path')
 const Crypto = require('crypto')
 const Filesystem = require('../dist')
@@ -559,7 +560,11 @@ describe('Filesystem', () => {
   })
 
   it('isSocket', async () => {
-    expect(await Filesystem.isSocket('/var/run/docker.sock')).toBe(true)
+    const socketPath = createFilePath('servers.sock')
+    const server = Net.createServer(() => {}).listen(socketPath, () => {})
+
+    expect(await Filesystem.isSocket(socketPath)).toBe(true)
+    server.close()
 
     const file = await ensureTempFile()
     expect(await Filesystem.isSocket(file)).toBe(false)
