@@ -3,48 +3,55 @@
 import Fs from 'fs-extra'
 import { tap } from '@supercharge/goodies'
 
-type FileSizeMetric = 'bytes' | 'kilobytes' | 'megabytes'
+export type FileSizeMetric = 'bytes' | 'kilobytes' | 'megabytes' | 'gigabytes' | 'terabytes' | 'petabytes'
 
 export class FileSizeResolver {
+  /**
+   * Stores the file size metric.
+   */
   private metric: FileSizeMetric
 
+  /**
+   * Stores the file path.
+   */
   private readonly filePath: string
 
+  /**
+   * Create a new instance for the given `filePath`.
+   */
   constructor (filePath: string) {
     this.metric = 'bytes'
     this.filePath = filePath
+  }
+
+  async inBytes (): Promise<number> {
+    return await this.setMetric('bytes').calculate()
+  }
+
+  async inKb (): Promise<number> {
+    return await this.setMetric('kilobytes').calculate()
+  }
+
+  async inMb (): Promise<number> {
+    return await this.setMetric('megabytes').calculate()
+  }
+
+  async inGb (): Promise<number> {
+    return await this.setMetric('gigabytes').calculate()
+  }
+
+  async inTb (): Promise<number> {
+    return await this.setMetric('terabytes').calculate()
+  }
+
+  async inPb (): Promise<number> {
+    return await this.setMetric('petabytes').calculate()
   }
 
   private setMetric (metric: FileSizeMetric): this {
     return tap(this, () => {
       this.metric = metric
     })
-  }
-
-  async inBytes (): Promise<number> {
-    await this.setMetric('bytes')
-
-    return await this.calculate()
-  }
-
-  async inKb (): Promise<number> {
-    await this.setMetric('kilobytes')
-
-    return await this.calculate()
-  }
-
-  async inMb (): Promise<number> {
-    await this.setMetric('megabytes')
-
-    return await this.calculate()
-  }
-
-  async then (onFulfilled: (v: number) => any): Promise<void> {
-    console.log('calling "then" in file size resolver. Size: ' + this.metric)
-
-    onFulfilled(
-      await this.calculate()
-    )
   }
 
   private async calculate (): Promise<number> {
@@ -55,22 +62,46 @@ export class FileSizeResolver {
 
   private convert (bytes: number): number {
     switch (this.metric) {
+      case 'bytes':
+        return bytes
+
       case 'kilobytes':
-        return this.sizeInKb(bytes)
+        return this.toKilobytes(bytes)
 
       case 'megabytes':
-        return this.sizeInMb(bytes)
+        return this.toMegabytes(bytes)
+
+      case 'gigabytes':
+        return this.toGigabytes(bytes)
+
+      case 'terabytes':
+        return this.toTerabytes(bytes)
+
+      case 'petabytes':
+        return this.toPetabytes(bytes)
 
       default:
-        return bytes
+        throw new Error(`Invalid file size metric. Received "${String(this.metric)}"`)
     }
   }
 
-  private sizeInKb (bytes: number): number {
+  private toKilobytes (bytes: number): number {
     return bytes / 1024
   }
 
-  private sizeInMb (bytes: number): number {
-    return this.sizeInKb(bytes) / 1024
+  private toMegabytes (bytes: number): number {
+    return this.toKilobytes(bytes) / 1024
+  }
+
+  private toGigabytes (bytes: number): number {
+    return this.toMegabytes(bytes) / 1024
+  }
+
+  private toTerabytes (bytes: number): number {
+    return this.toGigabytes(bytes) / 1024
+  }
+
+  private toPetabytes (bytes: number): number {
+    return this.toTerabytes(bytes) / 1024
   }
 }

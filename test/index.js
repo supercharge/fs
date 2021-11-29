@@ -462,22 +462,22 @@ test('isDirectory', async () => {
   ).toBe(false)
 })
 
-test('size', async () => {
+test('size in bytes', async () => {
   const file = await ensureTempFile()
   expect(
-    await Filesystem.size(file)
+    await Filesystem.size(file).inBytes()
   ).toEqual(0)
 
   await Filesystem.writeFile(file, 'hello')
   expect(
-    await Filesystem.size(file)
+    await Filesystem.size(file).inBytes()
   ).toEqual(5)
 })
 
 test('size in Kb', async () => {
   const file = await ensureTempFile()
   expect(
-    await Filesystem.size(file)
+    await Filesystem.size(file).inKb()
   ).toEqual(0)
 
   await Filesystem.writeFile(file, 'hello')
