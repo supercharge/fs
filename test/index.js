@@ -477,13 +477,13 @@ test('size', async () => {
 test('size in Kb', async () => {
   const file = await ensureTempFile()
   expect(
-    await Filesystem.size(file).inKb()
+    await Filesystem.size(file)
   ).toEqual(0)
 
-  // await Filesystem.writeFile(file, 'hello')
-  // expect(
-  //   await Filesystem.size(file).inKb
-  // ).toEqual(0.005)
+  await Filesystem.writeFile(file, 'hello')
+  expect(
+    await Filesystem.size(file).inKb()
+  ).toEqual(5 / 1024)
 })
 
 test('append', async () => {

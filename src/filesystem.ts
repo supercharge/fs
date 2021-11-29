@@ -18,7 +18,7 @@ const Filesystem = Object.assign({}, Fs, {
    * @returns {FileSizeResolver}
    */
   size (path: string): FileSizeResolver {
-    return new FileSizeResolver(path).inBytes()
+    return new FileSizeResolver(path)
   },
 
   /**
