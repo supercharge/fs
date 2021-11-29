@@ -397,7 +397,7 @@ const Filesystem = Object.assign({}, Fs, {
    *
    * @returns {String}
    */
-  basename (path: string, extension: string): string {
+  basename (path: string, extension?: string): string {
     return Path.basename(path, extension)
   },
 

@@ -4,7 +4,11 @@
 
 ### Updated
 - bump dependencies
+- use UVU and c8 instead of jest for testing
 - refined tests to use a controlled, local socket
+
+### Fixed
+- `basename(path, extension?)`: make the `extension` argument optional
 
 
 ## [3.4.0](https://github.com/supercharge/fs/compare/v3.3.0...v3.4.0) - 2021-08-21

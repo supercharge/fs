@@ -8,7 +8,7 @@
     <h3>Fs</h3>
   </p>
   <p>
-    Extended and async `fs` package for Node.js
+    Extended drop-in <strong><code>fs</code></strong> replacement for Node.js
   </p>
   <br/>
   <p>
