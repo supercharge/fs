@@ -473,6 +473,18 @@ describe('Filesystem', () => {
     ).toEqual(5)
   })
 
+  it('size in Kb', async () => {
+    const file = await ensureTempFile()
+    expect(
+      await Filesystem.size(file).inKb()
+    ).toEqual(0)
+
+    // await Filesystem.writeFile(file, 'hello')
+    // expect(
+    //   await Filesystem.size(file).inKb
+    // ).toEqual(0.005)
+  })
+
   it('append', async () => {
     const file = await ensureTempFile()
 

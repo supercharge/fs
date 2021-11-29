@@ -5,21 +5,20 @@ import Path from 'path'
 import ReadRecursive from 'recursive-readdir'
 import { randomString, isDate } from './helper'
 import { tap, upon } from '@supercharge/goodies'
+import { FileSizeResolver } from './file-size-resolver'
 import Fs, { PathLike, Stats, SymlinkType, WriteFileOptions } from 'fs-extra'
 import Lockfile, { LockOptions, UnlockOptions, CheckOptions } from 'proper-lockfile'
 
-export default Object.assign({}, Fs, {
+const Filesystem = Object.assign({}, Fs, {
   /**
-   * Returns the file size in bytes of the file located at `path`.
+   * Returns the file size of the file located at `path` in **bytes**.
    *
    * @param {String} path
    *
-   * @returns {Integer}
+   * @returns {FileSizeResolver}
    */
-  async size (path: string): Promise<number> {
-    return upon(await Fs.stat(path), (stat: Stats) => {
-      return stat.size
-    })
+  size (path: string): FileSizeResolver {
+    return new FileSizeResolver(path).inBytes()
   },
 
   /**
@@ -77,7 +76,7 @@ export default Object.assign({}, Fs, {
    * integer to specify the accessibility level.
    *
    * @param {String} path  - file or directory path
-   * @param {Integer} mode - defaults to `fs.constants.F_OK`
+   * @param {Number} mode - defaults to `fs.constants.F_OK`
    *
    * @returns {Boolean}
    *
@@ -239,7 +238,7 @@ export default Object.assign({}, Fs, {
    * can be an integer or string.
    *
    * @param {String} file
-   * @param {String|Integer} mode
+   * @param {String|Number} mode
    */
   async chmod (file: string, mode: string): Promise<void> {
     return await Fs.chmod(file, parseInt(mode, 8))
@@ -535,3 +534,5 @@ export type IgnoreFileCallback = (file: string, stats: Fs.Stats) => boolean
 export interface ReadFileOptions {
   ignore: string | string[] | IgnoreFileCallback | IgnoreFileCallback[]
 }
+
+export default Filesystem
