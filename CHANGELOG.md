@@ -4,6 +4,7 @@
 
 ### Updated
 - bump dependencies
+- use UVU and c8 instead of jest for testing
 - refined tests to use a controlled, local socket
 
 ### Fixed
