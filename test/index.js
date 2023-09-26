@@ -131,9 +131,9 @@ test('readFile', async () => {
 
   expect(await Filesystem.readFile(file, 'utf8')).toEqual('Hello Supercharge')
 
-  // const log = jest.spyOn(console, 'log').mockImplementation(() => {})
-  expect(await Filesystem.readFile(file)).toEqual('Hello Supercharge')
-  // expect(log).toBeCalled()
+  const buffer = await Filesystem.readFile(file)
+  expect(buffer instanceof Buffer).toEqual(true)
+  expect(buffer.toString('utf-8')).toEqual('Hello Supercharge')
 })
 
 test('content', async () => {

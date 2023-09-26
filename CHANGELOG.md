@@ -1,5 +1,32 @@
 # Changelog
 
+## [4.0.0](https://github.com/supercharge/fs/compare/v3.4.0...v4.0.0) - 2023-xx-xx
+
+### Added
+- `createTempDir`: create a directory inside the operating system’s temporary directory
+
+### Updated
+- bump dependencies
+- use UVU and c8 instead of jest for testing
+- refined tests to use a controlled, local socket
+
+### Fixed
+- `basename(path, extension?)`: make the `extension` argument optional
+
+### Breaking Changes
+- require Node.js 18 or later
+- `tempDir` method: before `4.0.0` this method created a directory inside the operating system’s temporary directory. Starting from `4.0.0` this method is an alias for Node.js’ `os.tmpdir` method. To create a directory inside the OS’s temp dir, use the newly added `createTempDir` method:
+  ```
+  import Fs from '@supercharge/fs'
+
+  // before
+  await Fs.tempDir()
+
+  // after
+  await Fs.createTempDir()
+  ```
+
+
 ## [3.5.0](https://github.com/supercharge/fs/compare/v3.4.0...v3.5.0) - 2021-xx-xx
 
 ### Updated
