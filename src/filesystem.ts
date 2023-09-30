@@ -313,11 +313,27 @@ export default Object.assign({}, Fs, {
   },
 
   /**
-   * Determine whether the given `path` is a file.
+   * Determine whether the given `path` describes a file or FIFO pipe.
+   */
+  async isFileOrFifo (path: string): Promise<boolean> {
+    return await this.isFile(path) || await this.isFifo(path)
+  },
+
+  /**
+   * Determine whether the given `path` points to a file.
    */
   async isFile (path: string): Promise<boolean> {
     return upon(await Fs.stat(path), (stats: Stats) => {
       return stats.isFile()
+    })
+  },
+
+  /**
+   * Determine whether the given `path` describes first-in-first-out (FIFO) pipe.
+   */
+  async isFifo (path: string): Promise<boolean> {
+    return upon(await Fs.stat(path), (stats: Stats) => {
+      return stats.isFIFO()
     })
   },
 

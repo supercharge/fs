@@ -4,6 +4,8 @@
 
 ### Added
 - `createTempDir`: create a directory inside the operating system’s temporary directory
+- `isFifo`: determine whether a given path describes a first-in-first-out (FIFO) pipe
+- `isFileOrFifo`: determine whether a given path describes a file or FIFO pipe
 
 ### Updated
 - bump dependencies
