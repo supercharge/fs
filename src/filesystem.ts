@@ -3,6 +3,7 @@
 import Os from 'os'
 import Path from 'path'
 import { randomString, isDate } from './helper'
+import { FileSizeResolver } from './file-size-resolver'
 import Lockfile, { LockOptions, UnlockOptions, CheckOptions } from 'proper-lockfile'
 import Fs, { Dirent, ObjectEncodingOptions, PathLike, SymlinkType, WriteFileOptions } from 'fs-extra'
 
@@ -20,12 +21,14 @@ export interface ReadDirOptions {
 
 export default Object.assign({}, Fs, {
   /**
-   * Returns the file size in bytes of the file located at `path`.
+   * Returns the file size of the file located at `path` in **bytes**.
+   *
+   * @param {String} path
+   *
+   * @returns {FileSizeResolver}
    */
-  async size (path: PathLike): Promise<number> {
-    const stat = await Fs.stat(path)
-
-    return stat.size
+  size (path: string): FileSizeResolver {
+    return new FileSizeResolver(path)
   },
 
   /**
