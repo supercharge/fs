@@ -2,11 +2,9 @@
 
 import Os from 'os'
 import Path from 'path'
-import ReadRecursive from 'recursive-readdir'
 import { randomString, isDate } from './helper'
-import { tap, upon } from '@supercharge/goodies'
-import Fs, { PathLike, Stats, SymlinkType, WriteFileOptions } from 'fs-extra'
 import Lockfile, { LockOptions, UnlockOptions, CheckOptions } from 'proper-lockfile'
+import Fs, { Dirent, ObjectEncodingOptions, PathLike, SymlinkType, WriteFileOptions } from 'fs-extra'
 
 export type IgnoreFileCallback = (file: string, stats: Fs.Stats) => boolean
 
@@ -14,45 +12,51 @@ export interface ReadFileOptions {
   ignore: string | string[] | IgnoreFileCallback | IgnoreFileCallback[]
 }
 
+export interface ReadDirOptions {
+  encoding?: ObjectEncodingOptions
+  withFileTypes?: true | undefined
+  recursive?: boolean | undefined
+}
+
 export default Object.assign({}, Fs, {
   /**
    * Returns the file size in bytes of the file located at `path`.
    */
-  async size (path: string): Promise<number> {
-    return upon(await Fs.stat(path), (stat: Stats) => {
-      return stat.size
-    })
+  async size (path: PathLike): Promise<number> {
+    const stat = await Fs.stat(path)
+
+    return stat.size
   },
 
   /**
    * Retrieve the time when `file` was last modified.
    */
   async lastModified (file: string): Promise<Date> {
-    return upon(await Fs.stat(file), (stat: Stats) => {
-      return stat.mtime
-    })
+    const stat = await Fs.stat(file)
+
+    return stat.mtime
   },
 
   /**
    * Retrieve the time when `file` was last accessed.
    */
   async lastAccessed (file: string): Promise<Date> {
-    return upon(await Fs.stat(file), (stat: Stats) => {
-      return stat.atime
-    })
+    const stat = await Fs.stat(file)
+
+    return stat.atime
   },
 
   /**
    * Change the file system timestamps of the referenced `path`.
    * Updates the last accessed and last modified properties.
    */
-  async updateTimestamps (path: string, lastAccessed: Date, lastModified: Date): Promise<void> {
+  async updateTimestamps (path: PathLike, lastAccessed: Date, lastModified: Date): Promise<void> {
     if (!isDate(lastAccessed)) {
-      throw new Error(`Updating the last accessed timestamp for ${path} requires an instance of "Date". Received ${typeof lastAccessed}`)
+      throw new Error(`Updating the last accessed timestamp for ${String(path)} requires an instance of "Date". Received ${typeof lastAccessed}`)
     }
 
     if (!isDate(lastModified)) {
-      throw new Error(`Updating the last modified timestamp for ${path} requires an instance of "Date". Received ${typeof lastAccessed}`)
+      throw new Error(`Updating the last modified timestamp for ${String(path)} requires an instance of "Date". Received ${typeof lastAccessed}`)
     }
 
     await Fs.utimes(path, lastAccessed, lastModified)
@@ -63,7 +67,7 @@ export default Object.assign({}, Fs, {
    * be a file or directory. The `mode` argument is an optional
    * integer to specify the accessibility level.
    */
-  async canAccess (path: string, mode: number = Fs.constants.F_OK): Promise<boolean> {
+  async canAccess (path: PathLike, mode: number = Fs.constants.F_OK): Promise<boolean> {
     try {
       await Fs.access(path, mode)
 
@@ -124,18 +128,31 @@ export default Object.assign({}, Fs, {
    * in the given directory `path`. This method excludes the paths `.` and
    * `..` and does not read files recursively in available subdirectories.
    */
-  async files (path: string): Promise<string[]> {
-    return await Fs.readdir(path)
+  async files (path: PathLike, options?: ReadDirOptions & { withFileTypes: true}): Promise<Dirent[]> {
+  // async files (path: PathLike, options?: any): Promise<any[]> {
+    // @ts-expect-error
+    return await Fs.readdir(path, options)
   },
 
   /**
    * Returns an array of file names of all files, even recursive files in the given
    * directory `path`.  This method excludes the paths `.`, `..`, and dotfiles.
    */
-  async allFiles (path: string, options?: ReadFileOptions): Promise<string[]> {
-    const { ignore } = options ?? {}
+  async allFiles (path: PathLike, options?: ReadDirOptions): Promise<Array<Buffer | Dirent | string>> {
+    // const { ignore } = options ?? {}
+    // return await ReadRecursive(path, ([] as any[]).concat(ignore ?? []))
 
-    return await ReadRecursive(path, ([] as any[]).concat(ignore ?? []))
+    // TODO: add `ignore` handling or make it a breaking change
+
+    const files = await this.files(path, {
+      recursive: true,
+      withFileTypes: true,
+      ...options,
+    })
+
+    return files
+      .filter(file => file.isFile())
+      .map(file => Path.resolve(file.path, file.name))
   },
 
   /**
@@ -157,10 +174,10 @@ export default Object.assign({}, Fs, {
    * Ensures that the directory exists. If the directory
    * structure does not exist, it is created. Like `mkdir -p`.
    */
-  async ensureDir (dir: string): Promise<string> {
-    return await tap(dir, async () => {
-      await Fs.ensureDir(dir)
-    })
+  async ensureDir (path: string): Promise<string> {
+    await Fs.ensureDir(path)
+
+    return path
   },
 
   /**
@@ -230,10 +247,9 @@ export default Object.assign({}, Fs, {
    */
   async tempFile (name?: string): Promise<string> {
     const file = Path.resolve(await this.tempDir(), name ?? randomString())
+    await Fs.ensureFile(file)
 
-    return await tap(file, async () => {
-      await Fs.ensureFile(file)
-    })
+    return file
   },
 
   /**
@@ -276,7 +292,7 @@ export default Object.assign({}, Fs, {
    * Returns the fully resolve, absolute file path to the given `path`.
    * Resolves any relative paths, like `..` or `.`, and symbolic links.
    */
-  async realPath (path: string, cache?: { [path: string]: string }): Promise<string> {
+  async realPath (path: PathLike, cache?: { [path: string]: string }): Promise<string> {
     return await Fs.realpath(path, cache)
   },
 
@@ -315,53 +331,53 @@ export default Object.assign({}, Fs, {
   /**
    * Determine whether the given `path` describes a file or FIFO pipe.
    */
-  async isFileOrFifo (path: string): Promise<boolean> {
+  async isFileOrFifo (path: PathLike): Promise<boolean> {
     return await this.isFile(path) || await this.isFifo(path)
   },
 
   /**
    * Determine whether the given `path` points to a file.
    */
-  async isFile (path: string): Promise<boolean> {
-    return upon(await Fs.stat(path), (stats: Stats) => {
-      return stats.isFile()
-    })
+  async isFile (path: PathLike): Promise<boolean> {
+    const stats = await Fs.stat(path)
+
+    return stats.isFile()
   },
 
   /**
    * Determine whether the given `path` describes first-in-first-out (FIFO) pipe.
    */
-  async isFifo (path: string): Promise<boolean> {
-    return upon(await Fs.stat(path), (stats: Stats) => {
-      return stats.isFIFO()
-    })
+  async isFifo (path: PathLike): Promise<boolean> {
+    const stats = await Fs.stat(path)
+
+    return stats.isFIFO()
   },
 
   /**
    * Determine whether the given `path` is a directory.
    */
-  async isDirectory (path: string): Promise<boolean> {
-    return upon(await Fs.stat(path), (stats: Stats) => {
-      return stats.isDirectory()
-    })
+  async isDirectory (path: PathLike): Promise<boolean> {
+    const stats = await Fs.stat(path)
+
+    return stats.isDirectory()
   },
 
   /**
    * Determine whether a the given `path` is a socket.
    */
-  async isSocket (path: string): Promise<boolean> {
-    return upon(await Fs.stat(path), (stats: Stats) => {
-      return stats.isSocket()
-    })
+  async isSocket (path: PathLike): Promise<boolean> {
+    const stats = await Fs.stat(path)
+
+    return stats.isSocket()
   },
 
   /**
    * Determine whether a the given `path` is a symbolic link.
    */
-  async isSymLink (path: string): Promise<boolean> {
-    return upon(await Fs.lstat(path), (stats: Stats) => {
-      return stats.isSymbolicLink()
-    })
+  async isSymLink (path: PathLike): Promise<boolean> {
+    const stats = await Fs.lstat(path)
+
+    return stats.isSymbolicLink()
   },
 
   /**
@@ -386,7 +402,7 @@ export default Object.assign({}, Fs, {
    * `Fs.emptyDir(path)` method, this `Fs.isEmptyDir(path)` method doesn’t load all files
    * into memory. It opens the folder as a stream and checks if at least one file exists.
    */
-  async isEmptyDir (path: string): Promise<boolean> {
+  async isEmptyDir (path: PathLike): Promise<boolean> {
     try {
       const dirent = await Fs.opendir(path)
       const value = await dirent.read()

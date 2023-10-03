@@ -12,6 +12,11 @@
 - use UVU and c8 instead of jest for testing
 - refined tests to use a controlled, local socket
 
+### Removed
+- removed dependencies for a smaller package size and less overhead
+  - `recursive-readdir`
+  - `@supercharge/goodies`
+
 ### Fixed
 - `basename(path, extension?)`: make the `extension` argument optional
 
