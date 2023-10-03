@@ -488,6 +488,63 @@ test('size in Kb', async () => {
   ).toEqual(5 / 1024)
 })
 
+test('size in Mb', async () => {
+  const file = await ensureTempFile()
+  expect(
+    await Filesystem.size(file).inMb()
+  ).toEqual(0)
+
+  await Filesystem.writeFile(file, 'hello')
+  expect(
+    await Filesystem.size(file).inMb()
+  ).toEqual(5 / 1024 / 1024)
+})
+
+test('size in Gb', async () => {
+  const file = await ensureTempFile()
+  expect(
+    await Filesystem.size(file).inGb()
+  ).toEqual(0)
+
+  await Filesystem.writeFile(file, 'hello')
+  expect(
+    await Filesystem.size(file).inGb()
+  ).toEqual(5 / 1024 / 1024 / 1024)
+})
+
+test('size in Tb', async () => {
+  const file = await ensureTempFile()
+  expect(
+    await Filesystem.size(file).inTb()
+  ).toEqual(0)
+
+  await Filesystem.writeFile(file, 'hello')
+  expect(
+    await Filesystem.size(file).inTb()
+  ).toEqual(5 / 1024 / 1024 / 1024 / 1024)
+})
+
+test('size in Pb', async () => {
+  const file = await ensureTempFile()
+  expect(
+    await Filesystem.size(file).inPb()
+  ).toEqual(0)
+
+  await Filesystem.writeFile(file, 'hello')
+  expect(
+    await Filesystem.size(file).inPb()
+  ).toEqual(5 / 1024 / 1024 / 1024 / 1024 / 1024)
+})
+
+test('size throws for unknown metric', async () => {
+  const file = await ensureTempFile()
+  const fileSizeResolver = Filesystem.size(file)
+  fileSizeResolver.setMetric('unknown')
+
+  await expect(fileSizeResolver.calculate())
+    .rejects.toThrow('Invalid file size metric. Received "unknown"')
+})
+
 test('append', async () => {
   const file = await ensureTempFile()
 
