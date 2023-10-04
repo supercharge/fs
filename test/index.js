@@ -464,6 +464,18 @@ test('isDirectory', async () => {
   ).toBe(false)
 })
 
+test('size (resolves to bytes when used as promise)', async () => {
+  const file = await ensureTempFile()
+  expect(
+    await Filesystem.size(file)
+  ).toEqual(0)
+
+  await Filesystem.writeFile(file, 'hello')
+  expect(
+    await Filesystem.size(file)
+  ).toEqual(5)
+})
+
 test('size in bytes', async () => {
   const file = await ensureTempFile()
   expect(

@@ -2,9 +2,15 @@
 
 import Fs from 'fs-extra'
 
-export type FileSizeMetric = 'bytes' | 'kilobytes' | 'megabytes' | 'gigabytes' | 'terabytes' | 'petabytes'
+export type FileSizeMetric =
+  'bytes' |
+  'kilobytes' |
+  'megabytes' |
+  'gigabytes' |
+  'terabytes' |
+  'petabytes'
 
-export class FileSizeResolver {
+export class FileSizeBuilder {
   /**
    * Stores the file size metric.
    */
@@ -51,6 +57,13 @@ export class FileSizeResolver {
     this.metric = metric
 
     return this
+  }
+
+  /**
+   * Returns the file size with the provided metric ("bytes" by default).
+   */
+  async then (onfulfilled: (size: number) => number): Promise<number> {
+    return this.calculate().then(size => onfulfilled(size))
   }
 
   private async calculate (): Promise<number> {

@@ -3,7 +3,7 @@
 import Os from 'os'
 import Path from 'path'
 import { randomString, isDate } from './helper'
-import { FileSizeResolver } from './file-size-resolver'
+import { FileSizeBuilder } from './file-size-builder'
 import Lockfile, { LockOptions, UnlockOptions, CheckOptions } from 'proper-lockfile'
 import Fs, { Dirent, ObjectEncodingOptions, PathLike, SymlinkType, WriteFileOptions } from 'fs-extra'
 
@@ -25,10 +25,10 @@ export default Object.assign({}, Fs, {
    *
    * @param {String} path
    *
-   * @returns {FileSizeResolver}
+   * @returns {FileSizeBuilder}
    */
-  size (path: string): FileSizeResolver {
-    return new FileSizeResolver(path)
+  size (path: string): FileSizeBuilder {
+    return new FileSizeBuilder(path)
   },
 
   /**
