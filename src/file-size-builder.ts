@@ -10,7 +10,7 @@ export type FileSizeMetric =
   'terabytes' |
   'petabytes'
 
-export class FileSizeBuilder {
+export class FileSizeBuilder implements PromiseLike<number> {
   /**
    * Stores the file size metric.
    */
@@ -62,8 +62,10 @@ export class FileSizeBuilder {
   /**
    * Returns the file size with the provided metric ("bytes" by default).
    */
-  async then (onfulfilled: (size: number) => number): Promise<number> {
-    return this.calculate().then(size => onfulfilled(size))
+  then<TResult1 = number, TResult2 = never> (onfulfilled: ((value: number) => TResult1 | PromiseLike<TResult1>), onrejected: ((reason: any) => TResult2 | PromiseLike<TResult2>)): PromiseLike<TResult1 | TResult2> {
+    return this.calculate()
+      .then(size => onfulfilled(size))
+      .catch(error => onrejected(error))
   }
 
   private async calculate (): Promise<number> {
