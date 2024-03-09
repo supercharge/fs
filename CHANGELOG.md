@@ -1,6 +1,6 @@
 # Changelog
 
-## [3.5.0](https://github.com/supercharge/fs/compare/v3.4.0...v3.5.0) - 2021-xx-xx
+## [3.4.1](https://github.com/supercharge/fs/compare/v3.4.0...v3.4.1) - 2024-03-09
 
 ### Updated
 - bump dependencies
