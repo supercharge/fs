@@ -1,6 +1,6 @@
 # Changelog
 
-## [4.0.0](https://github.com/supercharge/fs/compare/v3.4.0...v4.0.0) - 2023-xx-xx
+## [4.0.0](https://github.com/supercharge/fs/compare/v3.4.1...v4.0.0) - 2024-xx-xx
 
 ### Added
 - `createTempDir`: create a directory inside the operating system’s temporary directory
@@ -34,7 +34,7 @@
   ```
 
 
-## [3.5.0](https://github.com/supercharge/fs/compare/v3.4.0...v3.5.0) - 2021-xx-xx
+## [3.4.1](https://github.com/supercharge/fs/compare/v3.4.0...v3.4.1) - 2024-03-09
 
 ### Updated
 - bump dependencies
