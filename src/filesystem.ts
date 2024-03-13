@@ -1,7 +1,7 @@
 'use strict'
 
-import Os from 'os'
-import Path from 'path'
+import Os from 'node:os'
+import Path from 'node:path'
 import { randomString, isDate } from './helper'
 import { FileSizeBuilder } from './file-size-builder'
 import Lockfile, { LockOptions, UnlockOptions, CheckOptions } from 'proper-lockfile'
@@ -111,11 +111,7 @@ export default Object.assign({}, Fs, {
    * specified, the raw buffer is returned. If `encoding` is
    * an object, it allows the `encoding` and `flag` options.
    */
-  async readFile (file: string, encoding?: BufferEncoding): Promise<string | Buffer> {
-    if (encoding === undefined) {
-      console.log('"Fs.readFile(file)" to retrieve the file’s content as string is deprecated. Use "Fs.content(file)" instead.')
-    }
-
+  async readFile (file: string, encoding: BufferEncoding): Promise<string> {
     return await Fs.readFile(file, encoding)
   },
 
@@ -388,7 +384,7 @@ export default Object.assign({}, Fs, {
    * creates the `file` if it does not exist yet.
    */
   async append (file: PathLike | number, content: string | Buffer, options?: WriteFileOptions): Promise<void> {
-    await Fs.appendFile(file, content, options)
+    await Fs.appendFile(file, content, options as any)
   },
 
   /**
@@ -407,7 +403,7 @@ export default Object.assign({}, Fs, {
    */
   async isEmptyDir (path: PathLike): Promise<boolean> {
     try {
-      const dirent = await Fs.opendir(path)
+      const dirent = await Fs.opendir(path as string)
       const value = await dirent.read()
       await dirent.close()
 
