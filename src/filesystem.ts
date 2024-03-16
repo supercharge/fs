@@ -144,7 +144,7 @@ export default Object.assign({}, Fs, {
       console.log('"Fs.readFile(file)" to retrieve the file’s content as string is deprecated. Use "Fs.content(file)" instead.')
     }
 
-    return await Fs.readFile(file, encoding ?? 'utf8')
+    return await Fs.readFile(file, encoding == null ? 'utf8' : encoding)
   },
 
   /**

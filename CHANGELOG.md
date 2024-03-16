@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.4.2](https://github.com/supercharge/fs/compare/v3.4.1...v3.4.2) - 2024-03-16
+
+### Fixed
+- fix failing test on Node.js v12 by changing the nullish coalescing to a direct null check
+
+
 ## [3.4.1](https://github.com/supercharge/fs/compare/v3.4.0...v3.4.1) - 2024-03-09
 
 ### Updated
