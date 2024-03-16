@@ -181,9 +181,9 @@ export default Object.assign({}, Fs, {
    * @returns {Array}
    */
   async allFiles (path: string, options?: ReadFileOptions): Promise<string[]> {
-    const { ignore } = options ?? {}
+    const { ignore } = options == null ? { ignore: [] } : options
 
-    return await ReadRecursive(path, ([] as any[]).concat(ignore ?? []))
+    return await ReadRecursive(path, ([] as any[]).concat(ignore || []))
   },
 
   /**
@@ -320,7 +320,8 @@ export default Object.assign({}, Fs, {
    * @returns {String}
    */
   async tempFile (name?: string): Promise<string> {
-    const file = Path.resolve(await this.tempDir(), name ?? randomString())
+    const filename = name == null ? randomString() : name
+    const file = Path.resolve(await this.tempDir(), filename)
 
     return await tap(file, async () => {
       await Fs.ensureFile(file)
